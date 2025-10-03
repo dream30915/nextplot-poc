@@ -1,0 +1,435 @@
+{
+  "name": "nextplot-next",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "@prisma/client": "^5.18.0",
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zod": "^3.23.8",
+    "next-safe-action": "^6.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.18.0",
+    "typescript": "^5.6.2",
+    "@types/react": "^18.2.22",
+    "@types/node": "^20.11.30",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5"
+  }
+}.
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: { appDir: true }
+};
+module.exports = nextConfig;.
+NEXT_PUBLIC_SUPABASE_URL=https://mzmswzocehujfgiexgpl.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16bXN3em9jZWh1amZnaWV4Z3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MzEyMjAsImV4cCI6MjA3NTAwNzIyMH0.srrQXHziSfCjvFrGuPGpkTW2wNl9vU1r_C3GDDES-ZA 
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16bXN3em9jZWh1amZnaWV4Z3BsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTQzMTIyMCwiZXhwIjoyMDc1MDA3MjIwfQ.ACVv-FY70CUj1_QNUUh2k44pePjLGewLNRtN-1_OLaQ 
+DATABASE_URL=
+NEXT_PUBLIC_DEFAULT_LOCALE=th
+NEXT_PUBLIC_SUPPORTED_LOCALES=th,en,zh.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Profile {
+  id          String   @id
+  role        UserRole @default(USER)
+  displayName String?
+  createdAt   DateTime @default(now())
+  Favorites   Favorite[]
+}
+
+model Property {
+  id            String   @id @default(uuid())
+  code          String?  @unique
+  title         String
+  location      String
+  areaRai       Float?
+  price         Float?
+  deedNumber    String?
+  ownerName     String?
+  published     Boolean  @default(true)
+  zoning        String?
+  coverImage    String?
+  gallery       Json?
+  createdFromRaw BigInt?
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Favorites     Favorite[]
+}
+
+model Favorite {
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  Profile  Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, propertyId])
+}.
+import { createClient } from '@supabase/supabase-js';
+
+export const supabaseBrowser = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: true, autoRefreshToken: true } }
+  );
+
+export const supabaseAdmin = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );.
+export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+
+export const roleHierarchy: Record<Role, number> = {
+  USER: 1,
+  ADMIN: 2,
+  SUPER_ADMIN: 3
+};
+
+export function canViewSensitive(role?: Role) {
+  return roleHierarchy[(role || 'USER')] >= 2;
+}
+export function canModerate(role?: Role) {
+  return roleHierarchy[(role || 'USER')] >= 2;
+}
+export function isSuper(role?: Role) {
+  return role === 'SUPER_ADMIN';
+}.
+export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+
+export const roleHierarchy: Record<Role, number> = {
+  USER: 1,
+  ADMIN: 2,
+  SUPER_ADMIN: 3
+};
+
+export function canViewSensitive(role?: Role) {
+  return roleHierarchy[(role || 'USER')] >= 2;
+}
+export function canModerate(role?: Role) {
+  return roleHierarchy[(role || 'USER')] >= 2;
+}
+export function isSuper(role?: Role) {
+  return role === 'SUPER_ADMIN';
+}.
+import { NextResponse } from 'next/server';
+
+export function middleware(req: Request) {
+  const nonce = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  const res = NextResponse.next();
+  // Locale cookie fallback
+  const url = new URL(req.url);
+  const locale = req.headers.get('x-locale') || (req.headers.get('cookie')?.match(/locale=(\w+)/)?.[1]) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'th';
+
+  const policy = [
+    "default-src 'none'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    `style-src 'self' 'nonce-${nonce}'`,
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "connect-src 'self' https://*.supabase.co",
+    "manifest-src 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+    "object-src 'none'"
+  ].join('; ');
+
+  res.headers.set('Content-Security-Policy', policy);
+  res.headers.set('X-Nonce', nonce);
+  res.cookies.set('locale', locale, { path: '/' });
+  return res;
+}.
+import './globals.css';
+import { dict, defaultLocale, supported, type Locale, t } from '../lib/i18n';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+
+export const metadata = { title: 'NextPlot', description: 'NextPlot platform' };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = cookies();
+  const locale = (cookieStore.get('locale')?.value || defaultLocale) as Locale;
+  return (
+    <html lang={locale}>
+      <head />
+      <body>
+        <header className="site-header">
+          <div className="logo">NextPlot</div>
+          <nav>
+            <Link href="/">{t(locale,'dashboard')}</Link>
+            <Link href="/properties">{t(locale,'properties')}</Link>
+            <Link href="/moderation">{t(locale,'moderation')}</Link>
+            <Link href="/knowledge">{t(locale,'knowledge')}</Link>
+            <Link href="/audit">{t(locale,'audit')}</Link>
+            <Link href="/login">{t(locale,'signin')}</Link>
+          </nav>
+          <LanguageSwitcher current={locale} />
+        </header>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}.
+:root {
+  --bg:#2E2E2E;--panel:#3A3A3A;--text:#fff;--accent:#C9A14A;--accent-hover:#b78f3f;--border:#4A4A4A;
+  font-family: system-ui, -apple-system, Arial, sans-serif;
+  color-scheme: dark;
+}
+body { margin:0; background:var(--bg); color:var(--text); }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; color:var(--accent-hover); }
+.site-header { display:flex; gap:2rem; align-items:center; padding:0.8rem 1.4rem; background:linear-gradient(90deg,#2e2e2e,#3a3a3a); border-bottom:1px solid var(--border); }
+.site-header nav { display:flex; gap:1rem; flex-wrap:wrap; }
+main { max-width:1200px; margin:2rem auto; padding:0 1rem; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1rem 1.1rem; margin-bottom:1rem; }
+.grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); }
+.btn { background:var(--accent); color:#222; padding:.55rem .85rem; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+.btn:hover { background:var(--accent-hover); }
+input,select,textarea { background:#444; color:#fff; border:1px solid var(--border); padding:.55rem .7rem; border-radius:8px; width:100%; }
+small.muted { opacity:.65; font-size:.7rem; display:block; margin-top:.25rem; }
+.badge { background:var(--accent); color:#222; padding:.2rem .5rem; font-size:.6rem; border-radius:999px; font-weight:600; }
+.flex { display:flex; }
+.gap { gap:.75rem; }.
+import { cookies } from 'next/headers';
+import { t, defaultLocale, type Locale } from '../lib/i18n';
+
+export default function HomePage() {
+  const locale = (cookies().get('locale')?.value || defaultLocale) as Locale;
+  return (
+    <div>
+      <h1>NextPlot {t(locale,'dashboard')}</h1>
+      <div className="card">
+        <h3>{t(locale,'knowledgeSection')}</h3>
+        <p>{t(locale,'maskedDisclaimer')}</p>
+      </div>
+    </div>
+  );
+}.
+'use client';
+import { useState } from 'react';
+import { supabaseBrowser } from '../../lib/supabaseClient';
+import { dict, defaultLocale, type Locale } from '../../lib/i18n';
+
+export default function LoginPage() {
+  const [locale, setLocale] = useState<Locale>((typeof document !== 'undefined' && (document.cookie.match(/locale=(\w+)/)?.[1] as Locale)) || defaultLocale);
+  const t = (k:string)=> dict[locale][k] || k;
+  const [email,setEmail]=useState('');
+  const [password,setPassword]=useState('');
+  const [role,setRole]=useState<'USER'|'ADMIN'>('USER');
+  const [mode,setMode]=useState<'login'|'register'>('login');
+  const [msg,setMsg]=useState('');
+
+  async function register(){
+    setMsg('...');
+    const supabase = supabaseBrowser();
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options:{ data:{ role } }
+    });
+    if(error) return setMsg(error.message);
+    setMsg(t('registerSuccess'));
+  }
+  async function login(){
+    setMsg('...');
+    const supabase = supabaseBrowser();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if(error) return setMsg(error.message);
+    setMsg(t('loginSuccess'));
+  }
+
+  return (
+    <div style={{maxWidth:420}}>
+      <h1>{dict[locale].loginTitle}</h1>
+      <div className="card">
+        <label>{t('email')}<input value={email} onChange={e=>setEmail(e.target.value)}/></label>
+        <label>{t('password')}<input type="password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+        {mode==='register' && (
+          <label>{t('role')}
+            <select value={role} onChange={e=>setRole(e.target.value as any)}>
+              <option value="USER">{t('user')}</option>
+              <option value="ADMIN">{t('admin')}</option>
+            </select>
+          </label>
+        )}
+        <div className="flex gap">
+          {mode==='login'
+            ? <button className="btn" onClick={login}>{t('signin')}</button>
+            : <button className="btn" onClick={register}>{t('register')}</button>}
+          <button className="btn" onClick={()=>setMode(mode==='login'?'register':'login')}>
+            {mode==='login'? t('register'): t('signin')}
+          </button>
+        </div>
+        <small className="muted">{msg}</small>
+        <small className="muted">{t('chooseRole')} (USER/ADMIN)</small>
+      </div>
+    </div>
+  );
+}.
+import { cookies } from 'next/headers';
+import { t, defaultLocale, type Locale } from '../../lib/i18n';
+// TODO: fetch real properties from Supabase
+export default async function PropertiesPage() {
+  const locale = (cookies().get('locale')?.value || defaultLocale) as Locale;
+  const properties: any[] = []; // placeholder
+  return (
+    <div>
+      <h1>{t(locale,'properties')}</h1>
+      <div className="grid">
+        {properties.length === 0 && <div className="card">{t(locale,'noData')}</div>}
+      </div>
+    </div>
+  );
+}.
+'use client';
+import { useEffect, useState } from 'react';
+import { supabaseBrowser } from '../../lib/supabaseClient';
+import { dict, defaultLocale, type Locale } from '../../lib/i18n';
+
+interface RawItem {
+  id: number;
+  channel: string;
+  status: string;
+  extracted: any;
+  raw_payload: any;
+}
+
+export default function ModerationPage() {
+  const locale = (typeof document !== 'undefined' && (document.cookie.match(/locale=(\w+)/)?.[1] as Locale)) || defaultLocale;
+  const t=(k:string)=>dict[locale][k]||k;
+
+  const [items,setItems]=useState<RawItem[]>([]);
+  const [msg,setMsg]=useState('');
+
+  async function load() {
+    const supabase = supabaseBrowser();
+    const { data, error } = await supabase.from('raw_ingest').select('*').order('id',{ascending:false});
+    if(error) setMsg(error.message);
+    else setItems(data as any);
+  }
+  async function createMock() {
+    const supabase = supabaseBrowser();
+    const sample = {
+      channel:'api',
+      raw_payload:{message:'New Land', price:5000000, area:2, location:'เชียงใหม่', deed_number:'123-456-789', owner_name:'นายทดสอบ'},
+      extracted:{title:'New Land', price:5000000, area:2, location:'เชียงใหม่', deed_number:'123-456-789', owner_name:'นายทดสอบ', zoning:'ชมพู'}
+    };
+    const { error } = await supabase.from('raw_ingest').insert(sample);
+    if(error) setMsg(error.message); else { setMsg(t('rawCreated')); load(); }
+  }
+  async function approve(id:number) {
+    const supabase = supabaseBrowser();
+    const { data, error } = await supabase.rpc('approve_raw_to_property',{ raw_id: id });
+    if(error) setMsg(error.message); else { setMsg(t('rawApproved')); load(); }
+  }
+  async function reject(id:number) {
+    const supabase = supabaseBrowser();
+    await supabase.from('raw_ingest').update({ status:'REJECTED' }).eq('id',id);
+    load();
+  }
+
+  useEffect(()=>{ load(); },[]);
+
+  return (
+    <div>
+      <h1>{t(locale,'moderation')}</h1>
+      <button className="btn" onClick={createMock}>{t(locale,'addRaw')}</button>
+      <small className="muted">{msg}</small>
+      {items.map(it=>(
+        <div key={it.id} className="card">
+          <strong>#{it.id}</strong> {it.channel} • {it.status}
+          <div style={{fontSize:'.7rem',marginTop:'.4rem'}}>
+            {JSON.stringify(it.extracted)}
+          </div>
+          <div className="flex gap" style={{marginTop:'.5rem'}}>
+            <button className="btn" onClick={()=>approve(it.id)} disabled={it.status!=='PENDING'}>{t(locale,'approve')}</button>
+            <button className="btn" onClick={()=>reject(it.id)} disabled={it.status!=='PENDING'}>{t(locale,'reject')}</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}.
+-- รันเพิ่มใน Supabase (SQL Editor) เพื่อสร้างฟังก์ชัน approve
+CREATE OR REPLACE FUNCTION public.approve_raw_to_property(raw_id bigint)
+RETURNS uuid
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  r RECORD;
+  new_id uuid;
+BEGIN
+  SELECT * INTO r FROM raw_ingest WHERE id = raw_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Raw not found'; END IF;
+  IF r.status <> 'PENDING' THEN RAISE EXCEPTION 'Not pending'; END IF;
+
+  INSERT INTO properties (title, location, area_rai, price, deed_number, owner_name, zoning, created_from_raw, created_by, published)
+  VALUES (
+    coalesce(r.extracted->>'title','Unknown'),
+    coalesce(r.extracted->>'location',''),
+    (r.extracted->>'area')::numeric,
+    (r.extracted->>'price')::numeric,
+    r.extracted->>'deed_number',
+    r.extracted->>'owner_name',
+    r.extracted->>'zoning',
+    r.id,
+    r.uploader,
+    TRUE
+  )
+  RETURNING id INTO new_id;
+
+  UPDATE raw_ingest SET status='APPROVED', updated_at=now() WHERE id=raw_id;
+
+  INSERT INTO audit_logs (actor, action, target_table, target_id, meta)
+  VALUES (auth.uid(), 'APPROVE_PROPERTY', 'properties', new_id::text, jsonb_build_object('raw_id', raw_id));
+
+  RETURN new_id;
+END;
+$$ SECURITY DEFINER;.
+'use client';
+import { supported, dict, defaultLocale } from '../lib/i18n';
+
+export default function LanguageSwitcher({ current }:{ current:string }) {
+  function change(e:React.ChangeEvent<HTMLSelectElement>){
+    document.cookie = `locale=${e.target.value}; path=/; max-age=31536000`;
+    location.reload();
+  }
+  return (
+    <select onChange={change} defaultValue={current} style={{background:'#444',color:'#fff',border:'1px solid #666',padding:'.4rem .5rem',borderRadius:'8px'}}>
+      {supported.map(l=> <option key={l} value={l}>{l.toUpperCase()}</option>)}
+    </select>
+  );
+}.
