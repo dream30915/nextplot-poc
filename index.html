@@ -1,357 +1,153 @@
 <!DOCTYPE html>
 <html lang="th" data-theme="dark">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NextPlot – Property Catalogue (POC)</title>
-<meta name="description" content="NextPlot แคตตาล็อกที่ดิน (POC) โหมดผู้ชมจำกัดข้อมูล">
-<meta name="theme-color" content="#2E2E2E"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NextPlot Portal – Auth / Profile / Admin Request</title>
+<meta name="description" content="Portal with Supabase Auth, profile, admin role request workflow" />
 <style>
-/* (CSS ทั้งหมด – ย่อคำอธิบายเพื่อความสั้น รหัสเหมือนเวอร์ชันก่อนที่ส่งให้) */
-:root {--bg:#2E2E2E;--bg-alt:#3A3A3A;--panel:#3A3A3A;--panel-alt:#444;--text:#FFFFFF;--text-soft:#E5E5E5;
---accent:#C9A14A;--accent-hover:#b78f3f;--danger:#D9534F;--border:#4A4A4A;--focus:#FFD56A;--radius:14px;
---transition:0.25s;--font-stack:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;color-scheme:dark;}
-html[data-mode='light']{--bg:#F5F5F5;--bg-alt:#FFFFFF;--panel:#FFFFFF;--panel-alt:#F0F0F0;--text:#222;--text-soft:#444;
---accent:#C9A14A;--accent-hover:#a4822e;--border:#DDD;--focus:#C9A14A;color-scheme:light;}
-*{box-sizing:border-box;}body{margin:0;font-family:var(--font-stack);background:var(--bg);color:var(--text);line-height:1.5;}
-h1,h2,h3,h4{margin:0 0 .65em;line-height:1.2;font-weight:600;}p{margin:0 0 1em;}
-a{color:var(--accent);text-decoration:none;}a:hover,a:focus{text-decoration:underline;color:var(--accent-hover);}
-.header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;
-background:linear-gradient(90deg,#2E2E2E,#3A3A3A);border-bottom:1px solid var(--border);}
-.header__logo{display:flex;align-items:center;gap:.55rem;}
-.header__logo-texts small{font-size:.55rem;letter-spacing:2px;color:var(--accent);}
-.header nav{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;}
-.header nav a{position:relative;padding:.35rem .55rem;font-weight:600;}
-.header nav a[aria-current="page"]::after{content:"";position:absolute;left:10%;bottom:2px;width:80%;height:3px;background:var(--accent);border-radius:2px;}
-.util-bar{margin-left:auto;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
-select,button,input,textarea{font-family:inherit;font-size:.8rem;}
-.select,.btn,input[type="text"],input[type="number"]{background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
-padding:.5rem .65rem;border-radius:8px;transition:var(--transition);}
-.select:focus,.btn:focus,input:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:2px;}
-.btn{cursor:pointer;font-weight:600;border:1px solid var(--accent);background:var(--accent);color:#1e1e1e;}
-.btn:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#111;}
-.btn--ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);}
-.btn--ghost:hover{background:var(--accent);color:#111;}
-.btn--disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.4);}
-main{max-width:1300px;margin:0 auto;padding:1rem 1.1rem;}
-.section{margin:2.3rem 0 3rem;}
-.hero{display:grid;gap:1.4rem;padding:1.9rem 1.4rem;background:linear-gradient(135deg,#3A3A3A,#2E2E2E 60%);
-border:1px solid var(--border);border-radius:var(--radius);}
-.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);background:linear-gradient(90deg,#C9A14A,#efdfb2);-webkit-background-clip:text;color:transparent;}
-.knowledge{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;}
-.knowledge__list{list-style:none;margin:.6rem 0 0;padding:0;display:grid;gap:.6rem;}
-.knowledge__item{background:var(--panel-alt);padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:.6rem;}
-.knowledge__item a{color:var(--accent);font-size:.75rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.knowledge__item button{background:var(--danger);border:1px solid var(--danger);color:#fff;padding:.3rem .55rem;border-radius:6px;font-size:.6rem;cursor:pointer;}
-.knowledge__item button:hover{filter:brightness(1.1);}
-.knowledge__form{display:grid;gap:.55rem;margin-top:.9rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
-.knowledge__form input{background:var(--panel-alt);border:1px solid var(--border);padding:.5rem .6rem;border-radius:8px;color:var(--text);}
-.property-list{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:1.3rem;}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem .75rem 1rem;display:flex;flex-direction:column;gap:.55rem;position:relative;box-shadow:0 6px 14px -6px rgba(0,0,0,.35);}
-.card__img-wrapper{aspect-ratio:4/3;width:100%;border-radius:10px;overflow:hidden;background:#222;position:relative;}
-.card__img-wrapper img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.9);}
-.card__meta{font-size:.7rem;color:var(--text-soft);display:flex;gap:.5rem;flex-wrap:wrap;}
-.card__price{font-weight:700;font-size:1rem;color:var(--accent);}
-.card__actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.2rem;}
-.badge-limit{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);padding:.25rem .5rem;font-size:.55rem;border-radius:8px;letter-spacing:.5px;}
-.tag-fav{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);border:1px solid var(--accent);color:var(--accent);font-size:.6rem;padding:.25rem .45rem;border-radius:999px;cursor:pointer;}
-.tag-fav[data-active="true"]{background:var(--accent);color:#111;}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);padding:1rem;z-index:100;}
-.modal[open]{display:flex;}
-.modal__panel{background:var(--panel);max-width:960px;width:100%;max-height:90vh;overflow:auto;border:1px solid var(--border);border-radius:20px;padding:1.3rem 1.2rem 2.2rem;position:relative;}
-.modal__close{position:absolute;top:.6rem;right:.6rem;background:var(--accent);border:none;color:#111;border-radius:8px;cursor:pointer;padding:.4rem .6rem;font-weight:600;}
-.gallery{display:grid;gap:.55rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:1rem;}
-.gallery picture{border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;background:#222;aspect-ratio:4/3;}
-.gallery img{width:100%;height:100%;object-fit:cover;display:block;}
-.blur-mask{filter:blur(8px) brightness(.6);} .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:rgba(255,255,255,.25);pointer-events:none;mix-blend-mode:overlay;}
-.soft-gate{background:var(--panel-alt);border:1px dashed var(--accent);padding:1rem;border-radius:14px;margin-top:.75rem;font-size:.75rem;}
-.disclaimer{margin-top:1rem;font-size:.6rem;color:var(--text-soft);background:var(--panel-alt);padding:.6rem .7rem;border-radius:10px;border:1px solid var(--border);}
-.share-row{display:flex;flex-wrap:wrap;gap:.45rem;margin:.7rem 0 1rem;}
-.share-row button{background:var(--panel-alt);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;font-size:.6rem;border-radius:8px;cursor:pointer;}
-.share-row button:hover{border-color:var(--accent);color:var(--accent);}
-.qr-box{margin-top:.6rem;padding:.6rem;border:1px solid var(--border);border-radius:10px;display:inline-flex;flex-direction:column;gap:.35rem;background:var(--panel-alt);}
-.qr-box canvas{background:#fff;border-radius:8px;}
-.lead-form{margin:2rem 0;background:var(--panel);border:1px solid var(--border);padding:1rem 1rem 1.2rem;border-radius:var(--radius);max-width:600px;}
-.lead-form__row{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
-.lead-form label{font-size:.6rem;font-weight:600;letter-spacing:.5px;color:var(--text-soft);}
-.lead-form input,.lead-form textarea{background:var(--panel-alt);border:1px solid var(--border);padding:.55rem .6rem;border-radius:8px;color:var(--text);font-size:.75rem;}
-.honeypot{display:none;}
-.consent{display:flex;align-items:flex-start;gap:.5rem;font-size:.65rem;margin-top:.2rem;}
-.consent input{margin-top:.15rem;}
-.footer{padding:2.3rem 1rem 2.6rem;background:#252525;margin-top:3rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-soft);}
-.footer a{color:var(--accent);}
-.footer__cols{display:grid;gap:1.1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:1.3rem;}
-.skip-link{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;}
-.skip-link:focus{position:static;width:auto;height:auto;padding:.5rem .7rem;background:var(--accent);color:#111;border-radius:8px;z-index:999;}
-.hidden{display:none!important;}
-.flex{display:flex;} .wrap{flex-wrap:wrap;} .gap-sm{gap:.55rem;} .text-soft{color:var(--text-soft);} .btn--tiny{font-size:.55rem;padding:.25rem .5rem;}
-@media (max-width:680px){.hero{padding:1.3rem 1rem;}.header nav a{font-size:.7rem;padding:.3rem .45rem;}.property-list{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}.card__price{font-size:.95rem;}main{padding:1rem .75rem;}}
+:root {
+  --bg:#101317;--bg-alt:#181d23;--bg-alt2:#20262d;
+  --border:#2b333c;--border-soft:#36404a;
+  --text:#f1f5f9;--text-dim:#94a3b8;
+  --accent:#3b82f6;--accent-hover:#2563eb;
+  --danger:#dc2626;--warn:#f59e0b;--success:#10b981;
+  --radius:14px;--radius-sm:6px;
+  --focus-ring:0 0 0 3px rgba(59,130,246,.35);
+  --grad:linear-gradient(135deg,#1e3a8a,#3b82f6,#06b6d4);
+  --shadow:0 4px 14px -2px rgba(0,0,0,.5);
+}
+[data-theme="light"] {
+  --bg:#f5f7fa;--bg-alt:#ffffff;--bg-alt2:#f0f4f8;
+  --border:#d0d7e2;--border-soft:#e2e8f0;
+  --text:#0f172a;--text-dim:#475569;
+  --grad:linear-gradient(135deg,#2563eb,#06b6d4,#3b82f6);
+  --shadow:0 4px 16px -2px rgba(0,0,0,.15);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;
+     background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;
+     display:flex;flex-direction:column;}
+h3{margin:0 0 .7rem;font-weight:600;letter-spacing:.5px;}
+header{display:flex;align-items:center;justify-content:space-between;
+       padding:16px 26px;background:var(--bg-alt);border-bottom:1px solid var(--border);
+       position:sticky;top:0;z-index:50;}
+header .brand{font-size:1.05rem;font-weight:600;background:var(--grad);
+              -webkit-background-clip:text;color:transparent;letter-spacing:.7px;}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:600;
+      padding:4px 10px;background:var(--bg-alt2);border:1px solid var(--border);
+      border-radius:999px;color:var(--text-dim);}
+.container{width:100%;max-width:1320px;margin:0 auto;
+           padding:28px clamp(16px,2.2vw,40px) 80px;flex:1;display:grid;gap:28px;
+           grid-template-columns:repeat(auto-fit,minmax(330px,1fr));}
+.panel{background:var(--bg-alt);border:1px solid var(--border);
+       border-radius:14px;padding:22px 24px 26px;box-shadow:var(--shadow);
+       display:flex;flex-direction:column;gap:14px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.divider{height:1px;background:var(--border-soft);margin:4px 0 6px;}
+label{display:flex;flex-direction:column;gap:6px;font-size:.65rem;font-weight:600;
+      letter-spacing:.5px;color:var(--text-dim);text-transform:uppercase;}
+input,textarea,select{background:var(--bg-alt2);border:1px solid var(--border);color:var(--text);
+      padding:10px 14px;border-radius:8px;font-size:.8rem;transition:.25s;resize:vertical;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:var(--focus-ring);}
+textarea{min-height:70px;max-height:200px;}
+.actions-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
+button{cursor:pointer;background:var(--accent);color:#fff;font-weight:600;font-size:.75rem;
+       padding:11px 16px;border:none;border-radius:8px;letter-spacing:.4px;
+       display:inline-flex;align-items:center;gap:8px;transition:.25s;}
+button:hover{background:var(--accent-hover);}
+button.outline{background:var(--bg-alt2);color:var(--text-dim);border:1px solid var(--border);}
+button.outline:hover{color:var(--text);}
+button.danger{background:var(--danger);}
+button:disabled{opacity:.55;cursor:not-allowed;}
+.role-badge{font-size:.55rem;padding:4px 8px;border-radius:999px;background:var(--bg-alt2);
+            border:1px solid var(--border);font-weight:600;letter-spacing:.4px;}
+.role-USER{color:var(--text-dim);}
+.role-ADMIN{color:var(--warn);border-color:var(--warn);}
+.role-SUPER_ADMIN{color:var(--success);border-color:var(--success);}
+pre{background:var(--bg-alt2);border:1px solid var(--border);padding:14px 16px;
+    border-radius:10px;font-size:.7rem;max-height:400px;overflow:auto;margin:0;}
+.log-toggle{position:fixed;bottom:18px;right:18px;background:var(--bg-alt2);border:1px solid var(--border);
+            width:54px;height:54px;display:flex;align-items:center;justify-content:center;
+            font-size:1.1rem;border-radius:16px;cursor:pointer;box-shadow:var(--shadow);z-index:70;}
+.logs-drawer{position:fixed;bottom:90px;right:18px;width:min(560px,92vw);height:420px;
+             background:var(--bg-alt);border:1px solid var(--border);border-radius:22px;
+             display:flex;flex-direction:column;box-shadow:0 10px 40px -6px rgba(0,0,0,.55);
+             overflow:hidden;transform:translateY(12px);opacity:0;pointer-events:none;
+             transition:.35s;backdrop-filter:blur(6px);z-index:65;}
+.logs-drawer.active{transform:translateY(0);opacity:1;pointer-events:auto;}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+               border-bottom:1px solid var(--border);}
+.drawer-body{flex:1;overflow:auto;padding:12px 16px 20px;}
+.log-line{font-size:.65rem;font-family:ui-monospace,monospace;border-left:3px solid var(--border);
+          padding:4px 8px 4px 10px;margin:0 0 6px;background:var(--bg-alt2);border-radius:6px;white-space:pre-wrap;word-break:break-word;}
+.log-line.STATUS{border-color:var(--accent);}
+.log-line.ERROR{border-color:var(--danger);color:#fca5a5;}
+.log-line.INFO{border-color:var(--accent);}
+.avatar{width:58px;height:58px;background:var(--bg-alt2);border:1px solid var(--border);
+        border-radius:16px;display:flex;align-items:center;justify-content:center;
+        font-weight:600;color:var(--accent);font-size:1rem;}
+.profile-grid{display:grid;gap:18px;grid-template-columns:68px 1fr;}
+.toast{position:fixed;top:18px;right:18px;background:var(--bg-alt2);border:1px solid var(--border);
+       padding:12px 16px;border-radius:10px;font-size:.75rem;box-shadow:var(--shadow);
+       opacity:0;transform:translateY(-10px);pointer-events:none;transition:.35s;z-index:120;}
+.toast.show{opacity:1;transform:translateY(0);}
+.tag{font-size:.55rem;text-transform:uppercase;padding:4px 8px;background:var(--bg-alt2);
+     border:1px solid var(--border);border-radius:6px;letter-spacing:.6px;color:var(--text-dim);}
+.theme-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);
+           background:var(--bg-alt2);display:flex;align-items:center;justify-content:center;
+           cursor:pointer;font-size:1.05rem;color:var(--text-dim);}
+.theme-btn:hover{color:var(--text);background:var(--bg-alt);}
+textarea::-webkit-scrollbar,pre::-webkit-scrollbar{width:8px;}
+textarea::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-thumb{background:var(--border-soft);border-radius:4px;}
+@media (max-width:900px){.container{padding-top:18px;}header{flex-wrap:wrap;gap:12px;}}
 </style>
 </head>
 <body>
-<a href="#main" class="skip-link" data-i18n="skipContent">ข้ามไปเนื้อหา</a>
-<header class="header">
-  <div class="header__logo">
-    <img src="S__13033477.jpg" alt="NextPlot logo" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid var(--accent);background:#222"/>
-    <div class="header__logo-texts">
-      <span style="font-size:.9rem;font-weight:700;color:var(--accent)">NextPlot</span>
-      <small>PLOT FOR SALE</small>
-    </div>
-  </div>
-  <nav>
-    <a href="#" aria-current="page" data-i18n="nav.home">Home</a>
-    <a href="#knowledge" data-i18n="nav.knowledge">Knowledge</a>
-    <a href="#properties" data-i18n="nav.list">Properties</a>
-    <a href="#lead" data-i18n="nav.contact">Contact</a>
-  </nav>
-  <div class="util-bar">
-    <select id="lang-select" class="select" aria-label="Language">
-      <option value="th">TH</option><option value="en">EN</option><option value="zh">中文</option>
-    </select>
-    <button class="btn btn--ghost" id="mode-toggle" type="button" data-i18n="btn.darkMode">Dark</button>
-    <button class="btn btn--ghost" id="admin-toggle" type="button" data-i18n="btn.admin">Admin</button>
+<header>
+  <div class="brand">NextPlot Portal</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div id="sessionBadge" class="pill">No Session</div>
+    <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
+    <button id="logoutBtn" class="outline" disabled>Logout</button>
   </div>
 </header>
 
-<main id="main" tabindex="-1">
-  <section class="hero">
-    <div>
-      <h1 data-i18n="hero.title">ลงทุนในที่ดินคุณภาพ สร้างมูลค่าในอนาคต</h1>
-      <p data-i18n="hero.subtitle">คัดสรรแปลงศักยภาพ ทำเลเด่น พร้อมข้อมูลสำคัญที่คุณเข้าถึงได้ปลอดภัย</p>
-      <div class="flex gap-sm wrap">
-        <a href="#properties" class="btn" data-i18n="hero.cta">ดูรายการที่ดิน</a>
-        <a href="#lead" class="btn btn--ghost" data-i18n="hero.ctaContact">สอบถาม / แจ้งความสนใจ</a>
-      </div>
-      <p style="margin:.7rem 0 0;font-size:.65rem;color:var(--text-soft)" data-i18n="hero.note">
-        *ข้อมูลผู้ชมทั่วไปถูกจำกัด แสดงเฉพาะหัวข้อหลักเท่านั้น
-      </p>
+<main class="container">
+  <!-- AUTH -->
+  <section class="panel">
+    <div class="panel-header"><h3>Authentication</h3><span class="tag">SECURE</span></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+      <label style="flex:1">Email
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="off">
+      </label>
+      <label style="flex:1">Password
+        <input id="password" type="password" placeholder="••••••••">
+      </label>
+    </div>
+    <div class="actions-row">
+      <button id="signupBtn">Sign Up</button>
+      <button id="signinBtn" class="outline">Sign In</button>
+      <button id="ensureBtn" class="outline" disabled>Ensure Profile</button>
+      <button id="refreshProfileBtn" class="outline" disabled>Refresh Profile</button>
+    </div>
+    <small class="muted">สมัคร / ล็อกอิน แล้วระบบจะสร้าง profile อัตโนมัติ</small>
+  </section>
+
+  <!-- PROFILE -->
+  <section class="panel">
+    <div class="panel-header"><h3>Profile</h3><span class="tag">RLS</span></div>
+    <div class="divider"></div>
+    <div id="profileContent"><div class="muted">ยังไม่ได้ล็อกอิน</div></div>
+    <div class="actions-row" style="margin-top:6px;">
+      <input id="displayNameInput" placeholder="Display Name" style="flex:1;padding:10px;" disabled>
+      <button id="updateNameBtn" class="outline" disabled>Update Name</button>
     </div>
   </section>
 
-  <section id="knowledge" class="section">
-    <div class="knowledge">
-      <h2 style="margin-top:0" data-i18n="knowledge.title">ความรู้ / บทความ</h2>
-      <ul id="knowledge-list" class="knowledge__list" aria-live="polite"></ul>
-      <form id="knowledge-form" class="knowledge__form hidden" autocomplete="off">
-        <input id="k-title" name="title" placeholder="Title" required maxlength="120"/>
-        <input id="k-url" name="url" placeholder="https://..." type="url" required/>
-        <button type="submit" class="btn" style="font-size:.7rem" data-i18n="knowledge.addBtn">เพิ่มลิงก์</button>
-      </form>
-      <p style="margin:.6rem 0 0;font-size:.55rem;color:var(--text-soft)" data-i18n="knowledge.note">
-        *ผู้ชมทั่วไปอ่านได้เฉพาะรายการ Admin สามารถเพิ่ม/ลบได้ (localStorage)
-      </p>
-    </div>
-  </section>
-
-  <section class="section" id="properties">
-    <h2 data-i18n="list.title">รายการที่ดิน</h2>
-    <div id="property-list" class="property-list" aria-live="polite"></div>
-    <p id="empty-state" class="text-soft hidden" data-i18n="list.empty">ไม่พบผลลัพธ์</p>
-  </section>
-
-  <section class="section" id="lead">
-    <h2 data-i18n="lead.title">แจ้งความสนใจ / ขอรายละเอียด</h2>
-    <form id="lead-form" class="lead-form" novalidate>
-      <div class="lead-form__row">
-        <div>
-          <label for="lf-name" data-i18n="lead.name">ชื่อ</label>
-          <input id="lf-name" name="name" required maxlength="80" autocomplete="name"/>
-        </div>
-        <div>
-          <label for="lf-email" data-i18n="lead.email">อีเมล</label>
-          <input id="lf-email" name="email" type="email" required maxlength="120" autocomplete="email"/>
-        </div>
-        <div>
-          <label for="lf-phone" data-i18n="lead.phone">โทรศัพท์</label>
-          <input id="lf-phone" name="phone" type="tel" maxlength="25"/>
-        </div>
-      </div>
-      <div>
-        <label for="lf-message" data-i18n="lead.msg">ข้อความ</label>
-        <textarea id="lf-message" name="message" rows="4" maxlength="800"></textarea>
-      </div>
-      <div class="honeypot">
-        <label>KeepBlank<input type="text" name="hp"/></label>
-      </div>
-      <div class="consent">
-        <input id="lf-consent" type="checkbox" required aria-required="true"/>
-        <label for="lf-consent" data-i18n="lead.consent">
-          ข้าพเจ้ายินยอมตาม PDPA (จัดเก็บข้อมูลเพื่อการติดต่อกลับ)
-        </label>
-      </div>
-      <div style="margin-top:.9rem;" class="flex gap-sm wrap">
-        <button class="btn" type="submit" data-i18n="lead.send">ส่งข้อมูล</button>
-        <button class="btn btn--ghost" type="reset" data-i18n="lead.reset">ล้าง</button>
-      </div>
-      <p id="lead-status" class="text-soft" role="status" aria-live="polite"></p>
-    </form>
-  </section>
-</main>
-
-<dialog class="modal" id="detail-modal" aria-labelledby="detail-title" aria-modal="true">
-  <div class="modal__panel">
-    <button class="modal__close" type="button" id="close-detail" aria-label="Close">✕</button>
-    <h3 id="detail-title"></h3>
-    <div id="detail-basic" class="text-soft" style="font-size:.75rem;margin-bottom:.5rem;"></div>
-    <div class="gallery" id="detail-gallery" aria-label="Gallery"></div>
-    <div class="soft-gate" id="soft-gate">
-      <strong data-i18n="gate.title">ข้อมูลอ่อนไหว (Sensitive)</strong>
-      <p style="margin:.45rem 0 .8rem" data-i18n="gate.desc">
-        เพื่อความปลอดภัย ข้อมูล/รูปบางส่วนถูกเบลอ โปรดยืนยันก่อนดู
-      </p>
-      <button id="reveal-btn" type="button" class="btn btn--ghost" data-i18n="gate.reveal">ฉันยืนยัน</button>
-    </div>
-    <div style="margin-top:.8rem;">
-      <h4 style="margin:0 0 .45rem" data-i18n="share.title">แชร์</h4>
-      <div class="share-row" id="share-buttons"></div>
-      <div class="qr-box" id="wechat-box" hidden>
-        <canvas id="wechat-qr" width="120" height="120" aria-label="WeChat QR"></canvas>
-        <span style="font-size:.55rem" data-i18n="share.scan">สแกนด้วย WeChat</span>
-      </div>
-    </div>
-    <div class="disclaimer" data-i18n="disclaimer.use">
-      ห้ามนำรูปหรือข้อมูลไปใช้/เผยแพร่เพื่อสร้างรายได้หรือผลประโยชน์เชิงพาณิชย์โดยไม่ได้รับอนุญาต
-    </div>
-    <div style="margin-top:.9rem;" class="flex gap-sm wrap">
-      <button id="report-btn" class="btn btn--ghost btn--tiny" type="button" data-i18n="detail.report">แจ้งปัญหา</button>
-      <a href="#lead" class="btn btn--tiny" data-i18n="detail.request">ขอข้อมูลเพิ่มเติม</a>
-    </div>
-  </div>
-</dialog>
-
-<footer class="footer">
-  <div class="footer__cols">
-    <div>
-      <h4 style="margin:0 0 .4rem;font-size:.75rem;color:var(--accent)" data-i18n="footer.about">เกี่ยวกับ</h4>
-      <p style="margin:0;font-size:.6rem;" data-i18n="footer.aboutTxt">
-        NextPlot POC โหมดผู้ชมจำกัด เหมาะสำหรับสาธิตก่อนเชื่อมระบบจริง
-      </p>
-    </div>
-    <div>
-      <h4 style="margin:0 0 .4rem;font-size:.75rem;color:var(--accent)" data-i18n="footer.policy">นโยบาย</h4>
-      <ul style="list-style:none;padding:0;margin:0;display:grid;gap:.3rem;font-size:.6rem">
-        <li><a href="#" data-i18n="footer.pdpa">PDPA</a></li>
-        <li><a href="#" data-i18n="footer.terms">Terms</a></li>
-        <li><a href="#" data-i18n="footer.cookies">Cookies</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="margin:0 0 .4rem;font-size:.75rem;color:var(--accent)" data-i18n="footer.contact">ติดต่อ</h4>
-      <p style="margin:0;font-size:.6rem;">Line / Facebook / Email</p>
-    </div>
-  </div>
-  <p style="margin:0;font-size:.6rem;">© <span id="year"></span> NextPlot • <span data-i18n="footer.rights">All rights reserved.</span></p>
-</footer>
-
-<script>
-/* (JS ทั้งหมด – ตรงกับเวอร์ชันอัปเดตก่อนหน้า ลดคอมเมนต์เพื่อความสั้น) */
-const translations={th:{skipContent:"ข้ามไปเนื้อหา",nav:{home:"หน้าแรก",knowledge:"ความรู้",list:"รายการ",contact:"ติดต่อ"},
-hero:{title:"ลงทุนในที่ดินคุณภาพ สร้างมูลค่าในอนาคต",subtitle:"คัดสรรแปลงศักยภาพ ทำเลเด่น พร้อมข้อมูลสำคัญที่คุณเข้าถึงได้ปลอดภัย",cta:"ดูรายการที่ดิน",ctaContact:"สอบถาม / แจ้งความสนใจ",note:"*ข้อมูลผู้ชมทั่วไปถูกจำกัด แสดงเฉพาะหัวข้อหลักเท่านั้น"},
-knowledge:{title:"ความรู้ / บทความ",addBtn:"เพิ่มลิงก์",note:"*ผู้ชมทั่วไปอ่านได้เฉพาะรายการ Admin สามารถเพิ่ม/ลบได้"},
-list:{title:"รายการที่ดิน",empty:"ไม่พบผลลัพธ์"},card:{limited:"จำกัด",seeMore:"สมัครเพื่อดูเพิ่มเติม",request:"ขอรายละเอียด"},
-lead:{title:"แจ้งความสนใจ / ขอรายละเอียด",name:"ชื่อ",email:"อีเมล",phone:"โทรศัพท์",msg:"ข้อความ",consent:"ข้าพเจ้ายินยอมตาม PDPA (จัดเก็บข้อมูลเพื่อการติดต่อกลับ)",send:"ส่งข้อมูล",reset:"ล้าง",ok:"ส่งสำเร็จ",fail:"ส่งไม่สำเร็จ",invalid:"กรุณากรอกข้อมูลและติ๊กยินยอม"},
-gate:{title:"ข้อมูลอ่อนไหว (Sensitive)",desc:"เพื่อความปลอดภัย ข้อมูล/รูปบางส่วนถูกเบลอ โปรดยืนยันก่อนดู",reveal:"ฉันยืนยัน"},
-share:{title:"แชร์",scan:"สแกนด้วย WeChat",copied:"คัดลอกแล้ว",webShareFail:"อุปกรณ์ไม่รองรับ Web Share"},
-btn:{darkMode:"Dark",admin:"Admin"},disclaimer:{use:"ห้ามนำรูปหรือข้อมูลไปใช้/เผยแพร่เพื่อสร้างรายได้หรือผลประโยชน์เชิงพาณิชย์โดยไม่ได้รับอนุญาต"},
-detail:{report:"แจ้งปัญหา",request:"ขอข้อมูลเพิ่มเติม"},footer:{about:"เกี่ยวกับ",aboutTxt:"NextPlot POC โหมดผู้ชมจำกัด เหมาะสำหรับสาธิตก่อนเชื่อมระบบจริง",policy:"นโยบาย",pdpa:"PDPA",terms:"ข้อตกลง",cookies:"คุกกี้",contact:"ติดต่อ",rights:"All rights reserved."}},
-en:{skipContent:"Skip to content",nav:{home:"Home",knowledge:"Knowledge",list:"Listings",contact:"Contact"},
-hero:{title:"Invest in Quality Land for Future Value",subtitle:"Curated potential plots with secure access to essential data.",cta:"Browse Listings",ctaContact:"Inquire / Register Interest",note:"*Public viewers are limited to key headline data."},
-knowledge:{title:"Knowledge / Articles",addBtn:"Add Link",note:"*Public can view only. Admin can add/remove (localStorage)."},
-list:{title:"Properties",empty:"No results"},card:{limited:"Limited",seeMore:"Register to Unlock",request:"Request Info"},
-lead:{title:"Register Interest / Request Info",name:"Name",email:"Email",phone:"Phone",msg:"Message",consent:"I consent under PDPA for follow-up.",send:"Submit",reset:"Reset",ok:"Submitted",fail:"Failed",invalid:"Please fill required & consent"},
-gate:{title:"Sensitive Data",desc:"Some data/images blurred. Confirm to view.",reveal:"I Confirm"},
-share:{title:"Share",scan:"Scan via WeChat",copied:"Copied",webShareFail:"Web Share unsupported"},
-btn:{darkMode:"Dark",admin:"Admin"},disclaimer:{use:"Images / data may not be reused or monetized without permission."},
-detail:{report:"Report Issue",request:"Request More Info"},footer:{about:"About",aboutTxt:"POC limited viewer mode before full integration.",policy:"Policies",pdpa:"PDPA",terms:"Terms",cookies:"Cookies",contact:"Contact",rights:"All rights reserved."}},
-zh:{skipContent:"跳到內容",nav:{home:"首页",knowledge:"知识",list:"列表",contact:"联系"},
-hero:{title:"投资优质土地，创造未来价值",subtitle:"精选潜力地块，安全访问关键信息。",cta:"查看地块",ctaContact:"咨询 / 登记意向",note:"*访客仅能查看核心标题信息。"},
-knowledge:{title:"知识 / 文章",addBtn:"添加链接",note:"*访客仅浏览。管理员可添加/删除 (localStorage)。"},
-list:{title:"土地列表",empty:"没有符合的结果"},card:{limited:"限制",seeMore:"注册以查看更多",request:"索取资料"},
-lead:{title:"登记意向 / 请求信息",name:"姓名",email:"邮箱",phone:"电话",msg:"信息",consent:"我同意 PDPA 用于回访。",send:"提交",reset:"重置",ok:"已提交",fail:"失败",invalid:"请填写必填并同意"},
-gate:{title:"敏感信息",desc:"部分数据/图片已模糊。确认继续查看。",reveal:"我确认"},
-share:{title:"分享",scan:"使用微信扫码",copied:"已复制",webShareFail:"不支持 Web Share"},
-btn:{darkMode:"暗色",admin:"管理"},disclaimer:{use:"未授权禁止将图片或资料用于盈利或商业用途。"},
-detail:{report:"报告问题",request:"请求更多信息"},footer:{about:"关于",aboutTxt:"POC 限制访客模式。",policy:"政策",pdpa:"隐私",terms:"条款",cookies:"Cookies",contact:"联系",rights:"版权所有。"}}
-};
-const properties=[{id:'NP001',location:'เชียงใหม่',area:3.5,price:5200000,image:'https://picsum.photos/seed/np001a/640/480',images:['https://picsum.photos/seed/np001a/640/480','https://picsum.photos/seed/np001b/640/480'],sensitive:['https://picsum.photos/seed/np001c/640/480']},
-{id:'NP002',location:'ลำพูน',area:2,price:7800000,image:'https://picsum.photos/seed/np002a/640/480',images:['https://picsum.photos/seed/np002a/640/480'],sensitive:['https://picsum.photos/seed/np002b/640/480']},
-{id:'NP003',location:'เชียงราย',area:1.25,price:3500000,image:'https://picsum.photos/seed/np003a/640/480',images:['https://picsum.photos/seed/np003a/640/480'],sensitive:['https://picsum.photos/seed/np003b/640/480']},
-{id:'NP004',location:'เชียงใหม่',area:5,price:12500000,image:'https://picsum.photos/seed/np004a/640/480',images:['https://picsum.photos/seed/np004a/640/480','https://picsum.photos/seed/np004b/640/480'],sensitive:['https://picsum.photos/seed/np004c/640/480']},
-{id:'NP005',location:'ลำปาง',area:0.75,price:2800000,image:'https://picsum.photos/seed/np005a/640/480',images:['https://picsum.photos/seed/np005a/640/480'],sensitive:['https://picsum.photos/seed/np005b/640/480']}];
-const KNOW_KEY='np_knowledge_links';
-let knowledgeLinks=JSON.parse(localStorage.getItem(KNOW_KEY)||'[]');
-if(!Array.isArray(knowledgeLinks)||knowledgeLinks.length===0){knowledgeLinks=[{id:1,title:"ตัวอย่างข่าวอสังหา 1",url:"https://www.example.com/news1"},{id:2,title:"ตัวอย่างบทความการลงทุน 2",url:"https://www.example.com/article2"}];localStorage.setItem(KNOW_KEY,JSON.stringify(knowledgeLinks));}
-let currentLang=localStorage.getItem('np_lang')||'th';
-let favorites=new Set(JSON.parse(localStorage.getItem('np_favs')||'[]'));
-let adminMode=localStorage.getItem('np_admin')==='1';
-let softGateRevealed=false;
-const langSelect=document.getElementById('lang-select');
-const modeToggle=document.getElementById('mode-toggle');
-const adminToggle=document.getElementById('admin-toggle');
-const propList=document.getElementById('property-list');
-const emptyState=document.getElementById('empty-state');
-const modal=document.getElementById('detail-modal');
-const detailTitle=document.getElementById('detail-title');
-const detailBasic=document.getElementById('detail-basic');
-const galleryEl=document.getElementById('detail-gallery');
-const softGateEl=document.getElementById('soft-gate');
-const revealBtn=document.getElementById('reveal-btn');
-const shareContainer=document.getElementById('share-buttons');
-const wechatBox=document.getElementById('wechat-box');
-const wechatCanvas=document.getElementById('wechat-qr');
-const knowledgeList=document.getElementById('knowledge-list');
-const knowledgeForm=document.getElementById('knowledge-form');
-const yearSpan=document.getElementById('year');
-const leadForm=document.getElementById('lead-form');
-const leadStatus=document.getElementById('lead-status');
-
-function setLang(lang){currentLang=lang;localStorage.setItem('np_lang',lang);document.documentElement.lang=lang==='zh'?'zh':(lang==='en'?'en':'th');applyTranslations();renderProperties();renderKnowledge();}
-function applyTranslations(){const dict=translations[currentLang];if(!dict)return;document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n');const parts=key.split('.');let cur=dict;for(const p of parts){if(cur&&typeof cur==='object')cur=cur[p];}if(typeof cur==='string')el.textContent=cur;});modeToggle.textContent=dict.btn.darkMode;adminToggle.textContent=dict.btn.admin;}
-function formatPriceTHB(n){return new Intl.NumberFormat(currentLang==='th'?'th-TH':(currentLang==='zh'?'zh-CN':'en-US'),{style:'currency',currency:'THB',maximumFractionDigits:0}).format(n);}
-function saveFavorites(){localStorage.setItem('np_favs',JSON.stringify(Array.from(favorites)));}
-
-function renderKnowledge(){knowledgeList.textContent='';knowledgeLinks.forEach(item=>{const li=document.createElement('li');li.className='knowledge__item';const a=document.createElement('a');a.href=item.url;a.target='_blank';a.rel='noopener';a.textContent=item.title;li.appendChild(a);if(adminMode){const del=document.createElement('button');del.type='button';del.textContent='X';del.addEventListener('click',()=>{knowledgeLinks=knowledgeLinks.filter(x=>x.id!==item.id);localStorage.setItem(KNOW_KEY,JSON.stringify(knowledgeLinks));renderKnowledge();});li.appendChild(del);}knowledgeList.appendChild(li);});knowledgeForm.classList.toggle('hidden',!adminMode);}
-
-function enterAdmin(){adminMode=true;localStorage.setItem('np_admin','1');renderProperties();renderKnowledge();}
-function leaveAdmin(){adminMode=false;localStorage.removeItem('np_admin');closeModal();renderProperties();renderKnowledge();}
-adminToggle.addEventListener('click',()=>{if(adminMode){if(confirm('Exit admin mode?'))leaveAdmin();}else{const pass=prompt('Enter admin passphrase:');if(pass==='nextplot123')enterAdmin();else alert('Invalid passphrase');}});
-
-function renderProperties(){propList.textContent='';const list=properties.slice();emptyState.classList.toggle('hidden',list.length>0);list.forEach(p=>{const card=document.createElement('article');card.className='card';card.tabIndex=0;const badge=document.createElement('div');badge.className='badge-limit';badge.textContent=translations[currentLang].card.limited;card.appendChild(badge);const fav=document.createElement('button');fav.className='tag-fav';fav.type='button';fav.dataset.active=favorites.has(p.id)?'true':'false';fav.textContent='★';fav.addEventListener('click',()=>{if(favorites.has(p.id))favorites.delete(p.id);else favorites.add(p.id);fav.dataset.active=favorites.has(p.id)?'true':'false';saveFavorites();});card.appendChild(fav);const imgWrap=document.createElement('div');imgWrap.className='card__img-wrapper';const img=document.createElement('img');img.loading='lazy';img.alt=p.id;img.src=p.image;imgWrap.appendChild(img);card.appendChild(imgWrap);const title=document.createElement('h3');title.style.margin='0';title.style.fontSize='.9rem';title.textContent=p.id;card.appendChild(title);const meta=document.createElement('div');meta.className='card__meta';meta.textContent=`${p.location} • ${p.area} Rai`;card.appendChild(meta);const price=document.createElement('div');price.className='card__price';price.textContent=formatPriceTHB(p.price);card.appendChild(price);const actions=document.createElement('div');actions.className='card__actions';if(adminMode){const btnDetail=document.createElement('button');btnDetail.type='button';btnDetail.className='btn btn--ghost';btnDetail.style.fontSize='.6rem';btnDetail.textContent='Detail';btnDetail.addEventListener('click',()=>openDetail(p));actions.appendChild(btnDetail);}else{const locked=document.createElement('button');locked.type='button';locked.className='btn btn--ghost btn--disabled';locked.disabled=true;locked.style.fontSize='.55rem';locked.textContent=translations[currentLang].card.seeMore;actions.appendChild(locked);}const req=document.createElement('a');req.href='#lead';req.className='btn btn--ghost';req.style.fontSize='.55rem';req.textContent=translations[currentLang].card.request;actions.appendChild(req);card.appendChild(actions);propList.appendChild(card);});}
-
-let currentProp=null;
-function openDetail(p){if(!adminMode)return;currentProp=p;softGateRevealed=false;detailTitle.textContent=p.id;detailBasic.textContent=`${p.location} • ${p.area} Rai • ${formatPriceTHB(p.price)}`;renderGallery(p);renderShare(p);modal.setAttribute('open','');modal.focus();wechatBox.hidden=true;}
-function closeModal(){modal.removeAttribute('open');}
-document.getElementById('close-detail').addEventListener('click',closeModal);
-modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.hasAttribute('open'))closeModal();});
-
-function renderGallery(p){galleryEl.textContent='';p.images.forEach(src=>{const pc=document.createElement('picture');const img=document.createElement('img');img.src=src;img.alt=p.id;img.loading='lazy';pc.appendChild(img);galleryEl.appendChild(pc);});p.sensitive.forEach(src=>{const pc=document.createElement('picture');const img=document.createElement('img');img.src=src;img.alt=p.id+' sensitive';img.loading='lazy';img.className='blur-mask';const wm=document.createElement('div');wm.className='watermark';wm.textContent='SENSITIVE';pc.appendChild(img);pc.appendChild(wm);pc.dataset.sensitive='true';galleryEl.appendChild(pc);});softGateEl.style.display='block';}
-document.getElementById('reveal-btn').addEventListener('click',()=>{if(!currentProp)return;softGateRevealed=true;galleryEl.querySelectorAll('[data-sensitive="true"] img').forEach(i=>i.classList.remove('blur-mask'));galleryEl.querySelectorAll('.watermark').forEach(w=>w.remove());softGateEl.style.display='none';});
-
-function buildShareUrl(p){const base=location.origin+location.pathname;return `${base}?p=${encodeURIComponent(p.id)}&utm_source=share&utm_medium=property&utm_campaign=nextplot`;}
-function renderShare(p){shareContainer.textContent='';const link=buildShareUrl(p);const arr=[{k:'copy',label:'Copy',act:()=>navigator.clipboard.writeText(link).then(()=>alert(translations[currentLang].share.copied))},
-{k:'line',label:'Line',act:()=>window.open(`https://line.me/R/msg/text/?${encodeURIComponent(p.id+' '+link)}`,'_blank')},
-{k:'fb',label:'FB',act:()=>window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,'_blank')},
-{k:'email',label:'Email',act:()=>location.href=`mailto:?subject=${encodeURIComponent(p.id)}&body=${encodeURIComponent(link)}`},
-{k:'wechat',label:'WeChat',act:()=>{generateQr(link);wechatBox.hidden=false;}}];
-if(navigator.share){arr.unshift({k:'ws',label:'Share',act:()=>navigator.share({title:p.id,text:p.id,url:link}).catch(()=>alert(translations[currentLang].share.webShareFail))});}
-arr.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.label;b.addEventListener('click',o.act);shareContainer.appendChild(b);});}
-function generateQr(text){const ctx=wechatCanvas.getContext('2d');ctx.clearRect(0,0,120,120);ctx.fillStyle='#fff';ctx.fillRect(0,0,120,120);ctx.fillStyle='#000';let hash=0;for(let i=0;i<text.length;i++){hash=(hash*33+text.charCodeAt(i))>>>0;}
-for(let y=0;y<30;y++){for(let x=0;x<30;x++){if((hash>>((x*y)%32))&1)ctx.fillRect(x*4,y*4,4,4);}}
-ctx.fillStyle='#000';ctx.fillRect(2,2,16,16);ctx.clearRect(6,6,8,8);ctx.fillRect(102,2,16,16);ctx.clearRect(106,6,8,8);ctx.fillRect(2,102,16,16);ctx.clearRect(6,106,8,8);}
-document.getElementById('report-btn').addEventListener('click',()=>{alert('Reported (mock)');});
-
-leadForm.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(leadForm);if(fd.get('hp'))return;
-if(!fd.get('name')||!fd.get('email')||!document.getElementById('lf-consent').checked){leadStatus.textContent=translations[currentLang].lead.invalid;return;}
-leadStatus.textContent='...';setTimeout(()=>{leadStatus.textContent=translations[currentLang].lead.ok;leadForm.reset();},600);});
-
-function initMode(){document.documentElement.dataset.mode=localStorage.getItem('np_mode')||'dark';}
-modeToggle.addEventListener('click',()=>{const next=document.documentElement.dataset.mode==='light'?'dark':'light';document.documentElement.dataset.mode=next;localStorage.setItem('np_mode',next);applyTranslations();});
-langSelect.value=currentLang;langSelect.addEventListener('change',e=>setLang(e.target.value));
-knowledgeForm.addEventListener('submit',e=>{e.preventDefault();const title=document.getElementById('k-title').value.trim();const url=document.getElementById('k-url').value.trim();if(!title||!url)return;
-knowledgeLinks.push({id:Date.now(),title,url});localStorage.setItem(KNOW_KEY,JSON.stringify(knowledgeLinks));knowledgeForm.reset();renderKnowledge();});
-
-(function init(){initMode();setLang(currentLang);yearSpan.textContent=new Date().getFullYear();if(adminMode)enterAdmin();else leaveAdmin();})();
-</script>
-</body>
-</html>
+  <!-- REQUEST ADMIN -->
+  <section class="panel">
+    <div class="panel-header"><h3>ขอสิทธิ์ Admin</h3><span class="tag">ROLE REQUEST</span></div>
+    <div class="divider"></div>
+    <div id="requestStatus"
