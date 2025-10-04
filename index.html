@@ -3,151 +3,1413 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NextPlot Portal – Auth / Profile / Admin Request</title>
-<meta name="description" content="Portal with Supabase Auth, profile, admin role request workflow" />
+<title>NextPlot – แคตตาล็อกที่ดิน ซื้อ-ขาย-เช่า ขายฝาก</title>
+<meta name="description" content="บริการซื้อ-ขาย-เช่า และ ขายฝาก จัดหาที่ดิน อสังหา แชร์หลายช่องทาง ปลอดภัย PDPA Soft Gate" />
+<link rel="canonical" href="https://nextplot.example.com" />
+<meta property="og:title" content="NextPlot – แคตตาล็อกที่ดิน ซื้อ-ขาย-เช่า ขายฝาก" />
+<meta property="og:description" content="บริการซื้อ-ขาย-เช่า และ ขายฝาก จัดหาที่ดิน อสังหา แชร์หลายช่องทาง ปลอดภัย PDPA Soft Gate" />
+<meta property="og:image" content="https://nextplot.example.com/og-image.jpg" />
+<meta property="og:url" content="https://nextplot.example.com" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NextPlot – แคตตาล็อกที่ดิน ซื้อ-ขาย-เช่า ขายฝาก" />
+<meta name="twitter:description" content="บริการซื้อ-ขาย-เช่า และ ขายฝาก จัดหาที่ดิน อสังหา แชร์หลายช่องทาง ปลอดภัย PDPA Soft Gate" />
+<meta name="twitter:image" content="https://nextplot.example.com/og-image.jpg" />
+<!-- TODO (Server Headers): CSP: default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none' -->
+<!-- Permissions-Policy: geolocation=(), microphone=(), camera=() -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateListing",
+  "name": "ที่ดินเปล่าทำเลศักยภาพ ใกล้นิคม",
+  "url": "https://nextplot.example.com/?code=NP001",
+  "datePosted": "2025-01-10",
+  "offers": {
+    "@type": "Offer",
+    "price": 5200000,
+    "priceCurrency": "THB",
+    "availability": "https://schema.org/InStock"
+  },
+  "areaServed": "Thailand"
+}
+</script>
 <style>
 :root {
-  --bg:#101317;--bg-alt:#181d23;--bg-alt2:#20262d;
-  --border:#2b333c;--border-soft:#36404a;
-  --text:#f1f5f9;--text-dim:#94a3b8;
-  --accent:#3b82f6;--accent-hover:#2563eb;
-  --danger:#dc2626;--warn:#f59e0b;--success:#10b981;
-  --radius:14px;--radius-sm:6px;
-  --focus-ring:0 0 0 3px rgba(59,130,246,.35);
-  --grad:linear-gradient(135deg,#1e3a8a,#3b82f6,#06b6d4);
-  --shadow:0 4px 14px -2px rgba(0,0,0,.5);
+  --bg:#1F2124;--surface:#2B2E31;--surface-hover:#34383D;
+  --border:#40454B;--text:#E8ECEF;--text-secondary:#B5BDC4;
+  --accent-gold:#C9A14A;--accent-hover:#B3862F;
+  --success:#2F965A;--warning:#D4AF37;--danger:#D15555;
+  --radius:12px;--radius-sm:6px;
+  --shadow:0 4px 16px -2px rgba(0,0,0,.4);
+  --focus-ring:0 0 0 3px rgba(201,161,74,.3);
+  --focus-offset:2px;
 }
 [data-theme="light"] {
-  --bg:#f5f7fa;--bg-alt:#ffffff;--bg-alt2:#f0f4f8;
-  --border:#d0d7e2;--border-soft:#e2e8f0;
-  --text:#0f172a;--text-dim:#475569;
-  --grad:linear-gradient(135deg,#2563eb,#06b6d4,#3b82f6);
-  --shadow:0 4px 16px -2px rgba(0,0,0,.15);
+  --bg:#F7F7F7;--surface:#FFFFFF;--surface-hover:#F0F0F0;
+  --border:#D9D9D9;--text:#222;--text-secondary:#585D63;
+  --shadow:0 2px 12px -1px rgba(0,0,0,.1);
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;
-     background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;
-     display:flex;flex-direction:column;}
-h3{margin:0 0 .7rem;font-weight:600;letter-spacing:.5px;}
-header{display:flex;align-items:center;justify-content:space-between;
-       padding:16px 26px;background:var(--bg-alt);border-bottom:1px solid var(--border);
-       position:sticky;top:0;z-index:50;}
-header .brand{font-size:1.05rem;font-weight:600;background:var(--grad);
-              -webkit-background-clip:text;color:transparent;letter-spacing:.7px;}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:600;
-      padding:4px 10px;background:var(--bg-alt2);border:1px solid var(--border);
-      border-radius:999px;color:var(--text-dim);}
-.container{width:100%;max-width:1320px;margin:0 auto;
-           padding:28px clamp(16px,2.2vw,40px) 80px;flex:1;display:grid;gap:28px;
-           grid-template-columns:repeat(auto-fit,minmax(330px,1fr));}
-.panel{background:var(--bg-alt);border:1px solid var(--border);
-       border-radius:14px;padding:22px 24px 26px;box-shadow:var(--shadow);
-       display:flex;flex-direction:column;gap:14px;}
-.panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.divider{height:1px;background:var(--border-soft);margin:4px 0 6px;}
-label{display:flex;flex-direction:column;gap:6px;font-size:.65rem;font-weight:600;
-      letter-spacing:.5px;color:var(--text-dim);text-transform:uppercase;}
-input,textarea,select{background:var(--bg-alt2);border:1px solid var(--border);color:var(--text);
-      padding:10px 14px;border-radius:8px;font-size:.8rem;transition:.25s;resize:vertical;}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:var(--focus-ring);}
-textarea{min-height:70px;max-height:200px;}
-.actions-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
-button{cursor:pointer;background:var(--accent);color:#fff;font-weight:600;font-size:.75rem;
-       padding:11px 16px;border:none;border-radius:8px;letter-spacing:.4px;
-       display:inline-flex;align-items:center;gap:8px;transition:.25s;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI","Leelawadee UI",Tahoma,"Sukhumvit Set",Arial,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;
+}
+a{color:var(--accent-gold);text-decoration:none;}
+a:hover{text-decoration:underline;}
+a:focus{outline:3px solid var(--accent-gold);outline-offset:var(--focus-offset);}
+button,input,select,textarea{font-family:inherit;}
+button{
+  cursor:pointer;background:var(--accent-gold);color:#fff;font-weight:600;font-size:.875rem;
+  padding:12px 20px;border:none;border-radius:var(--radius-sm);letter-spacing:.3px;
+  transition:all .25s;min-height:44px;
+}
 button:hover{background:var(--accent-hover);}
-button.outline{background:var(--bg-alt2);color:var(--text-dim);border:1px solid var(--border);}
-button.outline:hover{color:var(--text);}
-button.danger{background:var(--danger);}
-button:disabled{opacity:.55;cursor:not-allowed;}
-.role-badge{font-size:.55rem;padding:4px 8px;border-radius:999px;background:var(--bg-alt2);
-            border:1px solid var(--border);font-weight:600;letter-spacing:.4px;}
-.role-USER{color:var(--text-dim);}
-.role-ADMIN{color:var(--warn);border-color:var(--warn);}
-.role-SUPER_ADMIN{color:var(--success);border-color:var(--success);}
-pre{background:var(--bg-alt2);border:1px solid var(--border);padding:14px 16px;
-    border-radius:10px;font-size:.7rem;max-height:400px;overflow:auto;margin:0;}
-.log-toggle{position:fixed;bottom:18px;right:18px;background:var(--bg-alt2);border:1px solid var(--border);
-            width:54px;height:54px;display:flex;align-items:center;justify-content:center;
-            font-size:1.1rem;border-radius:16px;cursor:pointer;box-shadow:var(--shadow);z-index:70;}
-.logs-drawer{position:fixed;bottom:90px;right:18px;width:min(560px,92vw);height:420px;
-             background:var(--bg-alt);border:1px solid var(--border);border-radius:22px;
-             display:flex;flex-direction:column;box-shadow:0 10px 40px -6px rgba(0,0,0,.55);
-             overflow:hidden;transform:translateY(12px);opacity:0;pointer-events:none;
-             transition:.35s;backdrop-filter:blur(6px);z-index:65;}
-.logs-drawer.active{transform:translateY(0);opacity:1;pointer-events:auto;}
-.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
-               border-bottom:1px solid var(--border);}
-.drawer-body{flex:1;overflow:auto;padding:12px 16px 20px;}
-.log-line{font-size:.65rem;font-family:ui-monospace,monospace;border-left:3px solid var(--border);
-          padding:4px 8px 4px 10px;margin:0 0 6px;background:var(--bg-alt2);border-radius:6px;white-space:pre-wrap;word-break:break-word;}
-.log-line.STATUS{border-color:var(--accent);}
-.log-line.ERROR{border-color:var(--danger);color:#fca5a5;}
-.log-line.INFO{border-color:var(--accent);}
-.avatar{width:58px;height:58px;background:var(--bg-alt2);border:1px solid var(--border);
-        border-radius:16px;display:flex;align-items:center;justify-content:center;
-        font-weight:600;color:var(--accent);font-size:1rem;}
-.profile-grid{display:grid;gap:18px;grid-template-columns:68px 1fr;}
-.toast{position:fixed;top:18px;right:18px;background:var(--bg-alt2);border:1px solid var(--border);
-       padding:12px 16px;border-radius:10px;font-size:.75rem;box-shadow:var(--shadow);
-       opacity:0;transform:translateY(-10px);pointer-events:none;transition:.35s;z-index:120;}
-.toast.show{opacity:1;transform:translateY(0);}
-.tag{font-size:.55rem;text-transform:uppercase;padding:4px 8px;background:var(--bg-alt2);
-     border:1px solid var(--border);border-radius:6px;letter-spacing:.6px;color:var(--text-dim);}
-.theme-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);
-           background:var(--bg-alt2);display:flex;align-items:center;justify-content:center;
-           cursor:pointer;font-size:1.05rem;color:var(--text-dim);}
-.theme-btn:hover{color:var(--text);background:var(--bg-alt);}
-textarea::-webkit-scrollbar,pre::-webkit-scrollbar{width:8px;}
-textarea::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-thumb{background:var(--border-soft);border-radius:4px;}
-@media (max-width:900px){.container{padding-top:18px;}header{flex-wrap:wrap;gap:12px;}}
+button:focus{outline:3px solid var(--accent-gold);outline-offset:var(--focus-offset);}
+button:disabled{opacity:.5;cursor:not-allowed;}
+button.outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+button.outline:hover{background:var(--surface-hover);}
+input,select,textarea{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:var(--radius-sm);font-size:.875rem;transition:.25s;
+  min-height:44px;
+}
+input:focus,select:focus,textarea:focus{
+  outline:3px solid var(--accent-gold);outline-offset:var(--focus-offset);border-color:var(--accent-gold);
+}
+textarea{resize:vertical;min-height:80px;}
+.skip-link{
+  position:absolute;left:-9999px;z-index:999;padding:10px 20px;
+  background:var(--accent-gold);color:#fff;text-decoration:none;
+}
+.skip-link:focus{left:10px;top:10px;}
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;position:sticky;top:0;z-index:100;
+}
+.logo-wrapper{display:flex;align-items:center;gap:12px;}
+.logo-img{height:48px;width:auto;}
+.logo-text{display:flex;flex-direction:column;gap:2px;}
+.logo-title{font-size:1.5rem;font-weight:700;color:var(--accent-gold);letter-spacing:.5px;}
+.logo-subtitle{font-size:.75rem;color:var(--accent-gold);letter-spacing:1px;font-weight:600;}
+.header-nav{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.header-nav a{font-size:.875rem;font-weight:500;}
+.header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.lang-switch{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;}
+.lang-btn{
+  background:transparent;color:var(--text-secondary);padding:6px 12px;border:none;
+  border-radius:4px;font-size:.75rem;min-height:auto;
+}
+.lang-btn.active{background:var(--accent-gold);color:#fff;}
+.theme-toggle{
+  background:var(--surface);border:1px solid var(--border);width:44px;height:44px;
+  border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;padding:0;min-height:auto;
+}
+.theme-toggle[aria-pressed="true"]{background:var(--accent-gold);}
+.hero{
+  background:linear-gradient(135deg,var(--surface) 0%,var(--surface-hover) 100%);
+  padding:60px 24px;text-align:center;border-bottom:1px solid var(--border);
+}
+.hero h1{font-size:2.5rem;color:var(--accent-gold);margin-bottom:16px;font-weight:700;}
+.hero p{font-size:1.125rem;color:var(--text-secondary);margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto;}
+.filter-bar{
+  background:var(--surface);padding:24px;border-bottom:1px solid var(--border);
+}
+.filter-grid{
+  max-width:1400px;margin:0 auto;display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+}
+.filter-grid label{display:flex;flex-direction:column;gap:6px;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;}
+.filter-results{
+  max-width:1400px;margin:16px auto 0;padding:0 24px;
+  font-size:.875rem;color:var(--text-secondary);
+}
+.filter-results[aria-live="polite"]{font-weight:600;}
+main{max-width:1400px;margin:0 auto;padding:40px 24px;}
+.section-title{font-size:2rem;color:var(--accent-gold);margin-bottom:32px;font-weight:700;}
+.property-grid{
+  display:grid;gap:24px;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+}
+.property-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;transition:.3s;
+  display:flex;flex-direction:column;
+}
+.property-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+.property-card__image-wrapper{
+  position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--surface-hover);
+}
+.property-card__image{width:100%;height:100%;object-fit:cover;}
+.property-card__status{
+  position:absolute;top:12px;right:12px;padding:6px 12px;
+  border-radius:999px;font-size:.75rem;font-weight:600;
+  backdrop-filter:blur(8px);
+}
+.status-available{background:rgba(47,150,90,.9);color:#fff;}
+.status-reserved{background:rgba(212,175,55,.9);color:#fff;}
+.status-sold{background:rgba(209,85,85,.7);color:#fff;}
+.property-card__content{padding:20px;flex:1;display:flex;flex-direction:column;gap:12px;}
+.property-card__title{font-size:1.125rem;font-weight:600;color:var(--text);}
+.property-card__location{font-size:.875rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.property-card__price{font-size:1.25rem;font-weight:700;color:var(--accent-gold);}
+.property-card__area{font-size:.875rem;color:var(--text-secondary);position:relative;display:inline-block;cursor:help;}
+.property-card__area:hover .tooltip{opacity:1;visibility:visible;}
+.tooltip{
+  position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);
+  padding:8px 12px;border-radius:var(--radius-sm);font-size:.75rem;
+  white-space:nowrap;opacity:0;visibility:hidden;transition:.25s;
+  box-shadow:var(--shadow);z-index:10;margin-bottom:8px;
+}
+.property-card__zoning{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;padding:4px 10px;background:var(--surface-hover);border-radius:999px;}
+.zoning-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;}
+.property-card__actions{display:flex;gap:12px;margin-top:auto;}
+.btn-view{flex:1;}
+.btn-favorite{
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  width:44px;padding:0;font-size:1.2rem;min-height:44px;
+}
+.btn-favorite[aria-pressed="true"]{color:var(--warning);border-color:var(--warning);}
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(4px);
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  width:90vw;max-width:980px;max-height:90vh;
+  overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal-header{
+  padding:24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-size:1.5rem;font-weight:600;}
+.btn-close{
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  width:40px;height:40px;padding:0;border-radius:50%;font-size:1.2rem;min-height:auto;
+}
+.modal-body{padding:24px;}
+.gallery{position:relative;margin-bottom:24px;}
+.gallery-main{aspect-ratio:16/9;background:var(--surface-hover);border-radius:var(--radius);overflow:hidden;position:relative;}
+.gallery-main img,.gallery-main video{width:100%;height:100%;object-fit:cover;}
+.gallery-nav{
+  position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);
+  display:flex;justify-content:space-between;padding:0 12px;pointer-events:none;
+}
+.gallery-nav button{
+  pointer-events:auto;background:rgba(0,0,0,.6);color:#fff;
+  border:none;width:48px;height:48px;border-radius:50%;font-size:1.5rem;
+  backdrop-filter:blur(4px);
+}
+.gallery-index{
+  position:absolute;bottom:12px;right:12px;
+  background:rgba(0,0,0,.7);color:#fff;padding:6px 12px;
+  border-radius:999px;font-size:.75rem;backdrop-filter:blur(4px);
+}
+.sensitive-overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;z-index:5;
+}
+.sensitive-overlay::before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,.05),
+    rgba(255,255,255,.05) 10px,
+    rgba(255,255,255,.15) 10px,
+    rgba(255,255,255,.15) 20px
+  );
+}
+.sensitive-overlay::after{
+  content:"NEXTPLOT PREVIEW";position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:3rem;font-weight:900;color:rgba(255,255,255,.18);
+  text-shadow:0 2px 8px rgba(0,0,0,.3);letter-spacing:4px;
+  pointer-events:none;white-space:nowrap;
+}
+.sensitive-blur{filter:blur(20px);user-select:none;pointer-events:none;}
+.sensitive-message{
+  position:relative;z-index:10;background:var(--surface);
+  padding:20px 24px;border-radius:var(--radius);text-align:center;
+  border:1px solid var(--border);max-width:400px;
+}
+.property-meta{display:grid;gap:16px;margin-bottom:24px;}
+.meta-row{display:flex;gap:8px;font-size:.875rem;}
+.meta-label{font-weight:600;color:var(--text-secondary);min-width:120px;}
+.meta-value{color:var(--text);}
+.tags-list{display:flex;gap:8px;flex-wrap:wrap;}
+.tag{
+  background:var(--surface-hover);color:var(--text-secondary);
+  padding:4px 12px;border-radius:999px;font-size:.75rem;
+}
+.share-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;}
+.share-buttons button{flex:1;min-width:120px;}
+.qr-canvas{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);}
+.lead-form{background:var(--surface-hover);padding:24px;border-radius:var(--radius);margin-top:24px;}
+.lead-form h3{margin-bottom:16px;font-size:1.25rem;}
+.form-grid{display:grid;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.form-error{color:var(--danger);font-size:.75rem;margin-top:4px;}
+.form-success{color:var(--success);font-size:.875rem;padding:12px;background:rgba(47,150,90,.1);border-radius:var(--radius-sm);margin-top:12px;}
+.checkbox-wrapper{display:flex;align-items:start;gap:8px;}
+.checkbox-wrapper input[type="checkbox"]{min-height:auto;width:20px;height:20px;margin-top:2px;}
+.honeypot{position:absolute;left:-9999px;}
+.toast{
+  position:fixed;top:24px;right:24px;background:var(--surface);
+  border:1px solid var(--border);padding:16px 20px;border-radius:var(--radius);
+  box-shadow:var(--shadow);opacity:0;transform:translateY(-20px);
+  transition:.3s;pointer-events:none;z-index:2000;
+}
+.toast.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.favorites-section{margin-top:40px;padding:24px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);}
+.favorites-section h2{margin-bottom:20px;font-size:1.5rem;color:var(--accent-gold);}
+.favorites-list{display:flex;flex-direction:column;gap:12px;}
+.favorite-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--surface-hover);border-radius:var(--radius-sm);
+}
+.favorites-empty{color:var(--text-secondary);font-style:italic;}
+.pdpa-notice{
+  background:var(--surface);padding:24px;border-top:1px solid var(--border);
+  text-align:center;margin-top:40px;
+}
+.pdpa-notice p{font-size:.875rem;color:var(--text-secondary);margin-bottom:12px;}
+footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:40px 24px 24px;margin-top:60px;
+}
+.footer-content{max-width:1400px;margin:0 auto;display:grid;gap:32px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+.footer-section h3{margin-bottom:12px;font-size:1rem;color:var(--accent-gold);}
+.footer-section ul{list-style:none;}
+.footer-section ul li{margin-bottom:8px;}
+.footer-section ul li a{font-size:.875rem;color:var(--text-secondary);}
+.footer-bottom{text-align:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border);font-size:.75rem;color:var(--text-secondary);}
+@media print{
+  body *{display:none;}
+  .modal.active,.modal.active *{display:block;}
+  .modal{box-shadow:none;border:1px solid #000;}
+  .modal-header,.modal-body{padding:20px;}
+  .gallery-nav,.share-buttons,.lead-form,.btn-close{display:none!important;}
+  body{background:#fff;color:#000;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+}
+@media(max-width:768px){
+  .hero h1{font-size:1.75rem;}
+  .filter-grid{grid-template-columns:1fr;}
+  .property-grid{grid-template-columns:1fr;}
+  .modal{width:100vw;height:100vh;max-height:100vh;border-radius:0;}
+}
 </style>
 </head>
 <body>
+<a href="#main" class="skip-link">ข้ามไปเนื้อหาหลัก</a>
+
 <header>
-  <div class="brand">NextPlot Portal</div>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <div id="sessionBadge" class="pill">No Session</div>
-    <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
-    <button id="logoutBtn" class="outline" disabled>Logout</button>
+  <div class="logo-wrapper">
+    <img src="S__13033477.jpg" alt="NextPlot logo" class="logo-img" onerror="this.style.display='none'">
+    <div class="logo-text">
+      <div class="logo-title">NextPlot</div>
+      <div class="logo-subtitle">PLOT FOR SALE</div>
+    </div>
+  </div>
+  <nav class="header-nav" aria-label="Main navigation">
+    <a href="#properties" data-i18n="nav.properties">ดูที่ดินทั้งหมด</a>
+    <a href="https://landsmaps.dol.go.th/" target="_blank" rel="noopener" data-i18n="nav.landsmaps">LandsMaps</a>
+    <a href="#knowledge" data-i18n="nav.knowledge">ความรู้</a>
+  </nav>
+  <div class="header-actions">
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="th" aria-label="Thai language">TH</button>
+      <button class="lang-btn" data-lang="en" aria-label="English language">EN</button>
+      <button class="lang-btn" data-lang="zh" aria-label="Chinese language">ZH</button>
+    </div>
+    <button class="theme-toggle" aria-pressed="false" aria-label="Toggle dark/light theme">🌙</button>
   </div>
 </header>
 
-<main class="container">
-  <!-- AUTH -->
-  <section class="panel">
-    <div class="panel-header"><h3>Authentication</h3><span class="tag">SECURE</span></div>
-    <div class="divider"></div>
-    <div style="display:flex;gap:14px;flex-wrap:wrap;">
-      <label style="flex:1">Email
-        <input id="email" type="email" placeholder="you@example.com" autocomplete="off">
-      </label>
-      <label style="flex:1">Password
-        <input id="password" type="password" placeholder="••••••••">
-      </label>
-    </div>
-    <div class="actions-row">
-      <button id="signupBtn">Sign Up</button>
-      <button id="signinBtn" class="outline">Sign In</button>
-      <button id="ensureBtn" class="outline" disabled>Ensure Profile</button>
-      <button id="refreshProfileBtn" class="outline" disabled>Refresh Profile</button>
-    </div>
-    <small class="muted">สมัคร / ล็อกอิน แล้วระบบจะสร้าง profile อัตโนมัติ</small>
+<section class="hero">
+  <h1 data-i18n="hero.title">ค้นหาที่ดินในฝันของคุณ</h1>
+  <p data-i18n="hero.subtitle">บริการซื้อ-ขาย-เช่า และ ขายฝาก จัดหาที่ดิน อสังหาริมทรัพย์คุณภาพ</p>
+  <button onclick="document.getElementById('properties').scrollIntoView({behavior:'smooth'})" data-i18n="hero.cta">เริ่มค้นหา</button>
+</section>
+
+<section class="filter-bar">
+  <div class="filter-grid">
+    <label>
+      <span data-i18n="filter.keyword">คำค้นหา</span>
+      <input type="text" id="filterKeyword" placeholder="ชื่อ, ทำเล, แท็ก...">
+    </label>
+    <label>
+      <span data-i18n="filter.location">ทำเล</span>
+      <input type="text" id="filterLocation" placeholder="จังหวัด, อำเภอ...">
+    </label>
+    <label>
+      <span data-i18n="filter.priceMin">ราคาต่ำสุด (บาท)</span>
+      <input type="number" id="filterPriceMin" placeholder="0">
+    </label>
+    <label>
+      <span data-i18n="filter.priceMax">ราคาสูงสุด (บาท)</span>
+      <input type="number" id="filterPriceMax" placeholder="ไม่จำกัด">
+    </label>
+    <label>
+      <span data-i18n="filter.areaMin">พื้นที่ต่ำสุด (ไร่)</span>
+      <input type="number" id="filterAreaMin" step="0.1" placeholder="0">
+    </label>
+    <label>
+      <span data-i18n="filter.areaMax">พื้นที่สูงสุด (ไร่)</span>
+      <input type="number" id="filterAreaMax" step="0.1" placeholder="ไม่จำกัด">
+    </label>
+    <label>
+      <span data-i18n="filter.status">สถานะ</span>
+      <select id="filterStatus">
+        <option value="">ทั้งหมด</option>
+        <option value="available">ว่าง</option>
+        <option value="reserved">จอง</option>
+        <option value="sold">ขายแล้ว</option>
+      </select>
+    </label>
+    <label>
+      <span data-i18n="filter.sort">เรียงตาม</span>
+      <select id="filterSort">
+        <option value="latest">ล่าสุด</option>
+        <option value="priceAsc">ราคาน้อย-มาก</option>
+        <option value="priceDesc">ราคามาก-น้อย</option>
+        <option value="areaAsc">พื้นที่น้อย-มาก</option>
+        <option value="areaDesc">พื้นที่มาก-น้อย</option>
+      </select>
+    </label>
+  </div>
+  <div class="filter-results" aria-live="polite" id="filterResults">
+    พบ 0 รายการ
+  </div>
+</section>
+
+<main id="main">
+  <section id="properties">
+    <h2 class="section-title" data-i18n="properties.title">รายการที่ดิน</h2>
+    <div class="property-grid" id="propertyGrid"></div>
   </section>
 
-  <!-- PROFILE -->
-  <section class="panel">
-    <div class="panel-header"><h3>Profile</h3><span class="tag">RLS</span></div>
-    <div class="divider"></div>
-    <div id="profileContent"><div class="muted">ยังไม่ได้ล็อกอิน</div></div>
-    <div class="actions-row" style="margin-top:6px;">
-      <input id="displayNameInput" placeholder="Display Name" style="flex:1;padding:10px;" disabled>
-      <button id="updateNameBtn" class="outline" disabled>Update Name</button>
-    </div>
+  <section class="favorites-section" id="favoritesSection" style="display:none;">
+    <h2 data-i18n="favorites.title">รายการโปรด</h2>
+    <div class="favorites-list" id="favoritesList"></div>
   </section>
+</main>
 
-  <!-- REQUEST ADMIN -->
-  <section class="panel">
-    <div class="panel-header"><h3>ขอสิทธิ์ Admin</h3><span class="tag">ROLE REQUEST</span></div>
-    <div class="divider"></div>
-    <div id="requestStatus"
+<div class="modal-overlay" id="propertyDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">รายละเอียดทรัพย์สิน</h2>
+      <button class="btn-close" onclick="closeModal()" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="pdpa-notice">
+  <p data-i18n="pdpa.short">เราเคารพความเป็นส่วนตัวของคุณและปฏิบัติตามกฎหมาย PDPA</p>
+  <button class="outline" data-i18n="pdpa.readMore">อ่านนโยบาย PDPA</button>
+</div>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3 data-i18n="footer.about">เกี่ยวกับเรา</h3>
+      <ul>
+        <li><a href="#" data-i18n="footer.company">บริษัท</a></li>
+        <li><a href="#" data-i18n="footer.team">ทีมงาน</a></li>
+        <li><a href="#" data-i18n="footer.contact">ติดต่อเรา</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3 data-i18n="footer.services">บริการ</h3>
+      <ul>
+        <li><a href="#" data-i18n="footer.buy">ซื้อที่ดิน</a></li>
+        <li><a href="#" data-i18n="footer.sell">ขายที่ดิน</a></li>
+        <li><a href="#" data-i18n="footer.rent">เช่าที่ดิน</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3 data-i18n="footer.resources">ทรัพยากร</h3>
+      <ul>
+        <li><a href="https://landsmaps.dol.go.th/" target="_blank" rel="noopener">LandsMaps</a></li>
+        <li><a href="#" data-i18n="footer.guide">คู่มือซื้อที่ดิน</a></li>
+        <li><a href="#" data-i18n="footer.faq">คำถามที่พบบ่อย</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3 data-i18n="footer.legal">นโยบาย</h3>
+      <ul>
+        <li><a href="#" data-i18n="footer.privacy">นโยบายความเป็นส่วนตัว</a></li>
+        <li><a href="#" data-i18n="footer.terms">เงื่อนไขการใช้งาน</a></li>
+        <li><a href="#" data-i18n="footer.pdpa">PDPA</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 NextPlot. All rights reserved.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== TRANSLATIONS ==========
+const translations = {
+  th: {
+    nav: {
+      properties: 'ดูที่ดินทั้งหมด',
+      landsmaps: 'LandsMaps',
+      knowledge: 'ความรู้'
+    },
+    hero: {
+      title: 'ค้นหาที่ดินในฝันของคุณ',
+      subtitle: 'บริการซื้อ-ขาย-เช่า และ ขายฝาก จัดหาที่ดิน อสังหาริมทรัพย์คุณภาพ',
+      cta: 'เริ่มค้นหา'
+    },
+    filter: {
+      keyword: 'คำค้นหา',
+      location: 'ทำเล',
+      priceMin: 'ราคาต่ำสุด (บาท)',
+      priceMax: 'ราคาสูงสุด (บาท)',
+      areaMin: 'พื้นที่ต่ำสุด (ไร่)',
+      areaMax: 'พื้นที่สูงสุด (ไร่)',
+      status: 'สถานะ',
+      sort: 'เรียงตาม'
+    },
+    properties: {
+      title: 'รายการที่ดิน'
+    },
+    favorites: {
+      title: 'รายการโปรด'
+    },
+    pdpa: {
+      short: 'เราเคารพความเป็นส่วนตัวของคุณและปฏิบัติตามกฎหมาย PDPA',
+      readMore: 'อ่านนโยบาย PDPA'
+    },
+    footer: {
+      about: 'เกี่ยวกับเรา',
+      company: 'บริษัท',
+      team: 'ทีมงาน',
+      contact: 'ติดต่อเรา',
+      services: 'บริการ',
+      buy: 'ซื้อที่ดิน',
+      sell: 'ขายที่ดิน',
+      rent: 'เช่าที่ดิน',
+      resources: 'ทรัพยากร',
+      guide: 'คู่มือซื้อที่ดิน',
+      faq: 'คำถามที่พบบ่อย',
+      legal: 'นโยบาย',
+      privacy: 'นโยบายความเป็นส่วนตัว',
+      terms: 'เงื่อนไขการใช้งาน',
+      pdpa: 'PDPA'
+    }
+  },
+  en: {
+    nav: {
+      properties: 'View All Properties',
+      landsmaps: 'LandsMaps',
+      knowledge: 'Knowledge'
+    },
+    hero: {
+      title: 'Find Your Dream Land',
+      subtitle: 'Buy, Sell, Rent and Pawn Quality Real Estate',
+      cta: 'Start Searching'
+    },
+    filter: {
+      keyword: 'Search',
+      location: 'Location',
+      priceMin: 'Min Price (THB)',
+      priceMax: 'Max Price (THB)',
+      areaMin: 'Min Area (Rai)',
+      areaMax: 'Max Area (Rai)',
+      status: 'Status',
+      sort: 'Sort By'
+    },
+    properties: {
+      title: 'Properties'
+    },
+    favorites: {
+      title: 'Favorites'
+    },
+    pdpa: {
+      short: 'We respect your privacy and comply with PDPA',
+      readMore: 'Read PDPA Policy'
+    },
+    footer: {
+      about: 'About Us',
+      company: 'Company',
+      team: 'Team',
+      contact: 'Contact',
+      services: 'Services',
+      buy: 'Buy Land',
+      sell: 'Sell Land',
+      rent: 'Rent Land',
+      resources: 'Resources',
+      guide: 'Buying Guide',
+      faq: 'FAQ',
+      legal: 'Legal',
+      privacy: 'Privacy Policy',
+      terms: 'Terms of Service',
+      pdpa: 'PDPA'
+    }
+  },
+  zh: {
+    nav: {
+      properties: '查看所有房产',
+      landsmaps: 'LandsMaps',
+      knowledge: '知识'
+    },
+    hero: {
+      title: '寻找您梦想的土地',
+      subtitle: '买卖租赁和典当优质房地产',
+      cta: '开始搜索'
+    },
+    filter: {
+      keyword: '搜索',
+      location: '位置',
+      priceMin: '最低价格 (泰铢)',
+      priceMax: '最高价格 (泰铢)',
+      areaMin: '最小面积 (莱)',
+      areaMax: '最大面积 (莱)',
+      status: '状态',
+      sort: '排序'
+    },
+    properties: {
+      title: '房产列表'
+    },
+    favorites: {
+      title: '我的收藏'
+    },
+    pdpa: {
+      short: '我们尊重您的隐私并遵守 PDPA',
+      readMore: '阅读 PDPA 政策'
+    },
+    footer: {
+      about: '关于我们',
+      company: '公司',
+      team: '团队',
+      contact: '联系',
+      services: '服务',
+      buy: '购买土地',
+      sell: '出售土地',
+      rent: '租赁土地',
+      resources: '资源',
+      guide: '购买指南',
+      faq: '常见问题',
+      legal: '法律',
+      privacy: '隐私政策',
+      terms: '服务条款',
+      pdpa: 'PDPA'
+    }
+  }
+};
+
+// ========== MOCK DATA ==========
+const properties = [
+  {
+    code: 'NP001',
+    title: 'ที่ดินเปล่าทำเลศักยภาพ ใกล้นิคม',
+    location: 'อ.บางปะกง จ.ฉะเชิงเทรา',
+    price: 5200000,
+    area_rai: 3.625,
+    status: 'available',
+    zoning: { name: 'ที่อยู่อาศัยหนาแน่นน้อย', color_hex: '#FFB6C1', note: 'สามารถสร้างบ้านพักอาศัยได้' },
+    tags: ['ใกล้ถนนใหญ่', 'ไฟฟ้า-น้ำประปาพร้อม', 'เหมาะลงทุน'],
+    media: [
+      { type: 'image', url: 'https://placehold.co/800x600/2B2E31/C9A14A?text=Property+NP001', is_sensitive: false }
+    ],
+    created_at: '2025-01-10',
+    published: true,
+    is_sensitive: false,
+    geo: { lat: 13.5469, lng: 101.1027 }
+  },
+  {
+    code: 'NP002',
+    title: 'ที่ดินแบ่งขาย ติดถนนสาธารณะ',
+    location: 'อ.บ้านโพธิ์ จ.ฉะเชิงเทรา',
+    price: 3800000,
+    area_rai: 2.5,
+    status: 'reserved',
+    zoning: { name: 'เกษตรกรรม', color_hex: '#FFFF99', note: 'เหมาะทำการเกษตร สวนผลไม้' },
+    tags: ['ติดถนน', 'เหมาะทำสวน', 'ราคาดี'],
+    media: [
+      { type: 'image', url: 'https://placehold.co/800x600/2B2E31/D4AF37?text=Property+NP002', is_sensitive: false }
+    ],
+    created_at: '2025-01-08',
+    published: true,
+    is_sensitive: false,
+    geo: { lat: 13.6169, lng: 101.0625 }
+  },
+  {
+    code: 'NP003',
+    title: 'ที่ดินพร้อมโฉนด 4 ไร่เต็ม',
+    location: 'อ.แปลงยาว จ.ฉะเชิงเทรา',
+    price: 7200000,
+    area_rai: 4.0,
+    status: 'sold',
+    zoning: { name: 'พาณิชยกรรม', color_hex: '#FFB6C1', note: 'เหมาะทำธุรกิจ ร้านค้า' },
+    tags: ['โฉนดพร้อม', '4 ไร่เต็ม', 'ขายแล้ว'],
+    media: [
+      { type: 'image', url: 'https://placehold.co/800x600/2B2E31/D15555?text=Property+NP003+Sold', is_sensitive: true }
+    ],
+    created_at: '2025-01-05',
+    published: true,
+    is_sensitive: true,
+    geo: { lat: 13.6869, lng: 101.1825 }
+  }
+];
+
+const leads = [];
+const share_events = [];
+const user_activity = [];
+const document_requests = [];
+let currentLang = 'th';
+let currentRole = 'VIEWER';
+let filteredProperties = [];
+
+// ========== UTILITY FUNCTIONS ==========
+function nextCode(existingCodes) {
+  const nums = existingCodes.map(c => parseInt(c.replace('NP', ''))).filter(n => !isNaN(n));
+  const maxNum = nums.length > 0 ? Math.max(...nums) : 0;
+  return 'NP' + String(maxNum + 1).padStart(3, '0');
+}
+
+function formatFullPrice(num) {
+  return new Intl.NumberFormat('th-TH').format(num);
+}
+
+function formatShortPrice(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
+}
+
+function formatCombined(num) {
+  return formatFullPrice(num) + ' (' + formatShortPrice(num) + ') บาท';
+}
+
+function areaToParts(raiFloat) {
+  const RAI_TO_SQM = 1600;
+  const NGAN_PER_RAI = 4;
+  const WAH_PER_NGAN = 100;
+  
+  const rai = Math.floor(raiFloat);
+  const remainderRai = raiFloat - rai;
+  const ngan = Math.floor(remainderRai * NGAN_PER_RAI);
+  const remainderNgan = remainderRai * NGAN_PER_RAI - ngan;
+  const wah = Math.round(remainderNgan * WAH_PER_NGAN);
+  const sqm = Math.round(raiFloat * RAI_TO_SQM);
+  
+  return { rai, ngan, wah, sqm };
+}
+
+function buildAreaDisplay(raiFloat) {
+  const parts = areaToParts(raiFloat);
+  return `${parts.rai}-${parts.ngan}-${parts.wah} ไร่ (≈${formatFullPrice(parts.sqm)} ตร.ม.)`;
+}
+
+function maskSensitive(str) {
+  return 'XXXX-XXXX';
+}
+
+function sanitize(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function buildShareUrl(base, channel) {
+  const url = new URL(base);
+  url.searchParams.set('utm_source', channel);
+  url.searchParams.set('utm_medium', 'share');
+  url.searchParams.set('utm_campaign', 'property');
+  return url.toString();
+}
+
+function logActivity(action, details = {}) {
+  const event = {
+    timestamp: new Date().toISOString(),
+    action,
+    ...details
+  };
+  user_activity.push(event);
+  console.log('[TRACK]', event);
+}
+
+// ========== i18n ==========
+function switchLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  document.documentElement.lang = lang;
+  
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const keys = key.split('.');
+    let value = translations[lang];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    if (value) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = value;
+      } else {
+        el.textContent = value;
+      }
+    }
+  });
+  
+  logActivity('language_change', { lang });
+}
+
+// ========== THEME ==========
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem('theme', theme);
+  const toggle = document.querySelector('.theme-toggle');
+  toggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+  toggle.setAttribute('aria-pressed', theme === 'dark' ? 'false' : 'true');
+  logActivity('theme_change', { theme });
+}
+
+// ========== TOAST ==========
+function showToast(message, duration = 3000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, duration);
+}
+
+// ========== FAVORITES ==========
+function getFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem('favorites') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveFavorites(codes) {
+  localStorage.setItem('favorites', JSON.stringify(codes));
+}
+
+function toggleFavorite(code) {
+  const favorites = getFavorites();
+  const index = favorites.indexOf(code);
+  
+  if (index > -1) {
+    favorites.splice(index, 1);
+    logActivity('favorite_remove', { code });
+    showToast('ลบออกจากรายการโปรด');
+  } else {
+    favorites.push(code);
+    logActivity('favorite_add', { code });
+    showToast('เพิ่มในรายการโปรด');
+  }
+  
+  saveFavorites(favorites);
+  renderProperties(filteredProperties);
+  renderFavorites();
+}
+
+function renderFavorites() {
+  const favorites = getFavorites();
+  const section = document.getElementById('favoritesSection');
+  const list = document.getElementById('favoritesList');
+  
+  if (favorites.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  list.innerHTML = '';
+  
+  favorites.forEach(code => {
+    const prop = properties.find(p => p.code === code);
+    if (!prop) return;
+    
+    const item = document.createElement('div');
+    item.className = 'favorite-item';
+    item.innerHTML = `
+      <div>
+        <strong>${sanitize(prop.code)}</strong> - ${sanitize(prop.title)}
+      </div>
+      <button onclick="toggleFavorite('${sanitize(code)}')" aria-label="Remove from favorites">
+        ลบ
+      </button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ========== FILTERING ==========
+function applyFilters() {
+  const keyword = document.getElementById('filterKeyword').value.toLowerCase();
+  const location = document.getElementById('filterLocation').value.toLowerCase();
+  const priceMin = parseFloat(document.getElementById('filterPriceMin').value) || 0;
+  const priceMax = parseFloat(document.getElementById('filterPriceMax').value) || Infinity;
+  const areaMin = parseFloat(document.getElementById('filterAreaMin').value) || 0;
+  const areaMax = parseFloat(document.getElementById('filterAreaMax').value) || Infinity;
+  const status = document.getElementById('filterStatus').value;
+  const sort = document.getElementById('filterSort').value;
+  
+  filteredProperties = properties.filter(prop => {
+    if (keyword && !prop.title.toLowerCase().includes(keyword) && 
+        !prop.location.toLowerCase().includes(keyword) &&
+        !prop.tags.some(t => t.toLowerCase().includes(keyword))) {
+      return false;
+    }
+    if (location && !prop.location.toLowerCase().includes(location)) {
+      return false;
+    }
+    if (prop.price < priceMin || prop.price > priceMax) {
+      return false;
+    }
+    if (prop.area_rai < areaMin || prop.area_rai > areaMax) {
+      return false;
+    }
+    if (status && prop.status !== status) {
+      return false;
+    }
+    return true;
+  });
+  
+  // Sort
+  if (sort === 'latest') {
+    filteredProperties.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  } else if (sort === 'priceAsc') {
+    filteredProperties.sort((a, b) => a.price - b.price);
+  } else if (sort === 'priceDesc') {
+    filteredProperties.sort((a, b) => b.price - a.price);
+  } else if (sort === 'areaAsc') {
+    filteredProperties.sort((a, b) => a.area_rai - b.area_rai);
+  } else if (sort === 'areaDesc') {
+    filteredProperties.sort((a, b) => b.area_rai - a.area_rai);
+  }
+  
+  document.getElementById('filterResults').textContent = `พบ ${filteredProperties.length} รายการ`;
+  renderProperties(filteredProperties);
+  logActivity('filter_apply', { keyword, location, priceMin, priceMax, areaMin, areaMax, status, sort });
+}
+
+// ========== RENDERING ==========
+function renderProperties(props) {
+  const grid = document.getElementById('propertyGrid');
+  const favorites = getFavorites();
+  grid.innerHTML = '';
+  
+  if (props.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);">ไม่พบรายการที่ดินตามเงื่อนไขที่เลือก</p>';
+    return;
+  }
+  
+  props.forEach(prop => {
+    const isFavorite = favorites.includes(prop.code);
+    const statusClass = 'status-' + prop.status;
+    const statusText = prop.status === 'available' ? 'ว่าง' : prop.status === 'reserved' ? 'จอง' : 'ขายแล้ว';
+    
+    const card = document.createElement('div');
+    card.className = 'property-card';
+    
+    const media = prop.media[0];
+    const imgHtml = media ? `<img src="${sanitize(media.url)}" alt="${sanitize(prop.title)}" class="property-card__image" loading="lazy" decoding="async">` : '';
+    
+    card.innerHTML = `
+      <div class="property-card__image-wrapper">
+        ${imgHtml}
+        <div class="property-card__status ${statusClass}">${statusText}</div>
+      </div>
+      <div class="property-card__content">
+        <h3 class="property-card__title">${sanitize(prop.title)}</h3>
+        <div class="property-card__location">📍 ${sanitize(prop.location)}</div>
+        <div class="property-card__price">${formatCombined(prop.price)}</div>
+        <div class="property-card__area">
+          ${buildAreaDisplay(prop.area_rai)}
+          <span class="tooltip">1 ไร่ = 4 งาน = 400 ตร.วา (1 ตร.วา = 4 ตร.ม.)</span>
+        </div>
+        <div class="property-card__zoning" aria-label="${sanitize(prop.zoning.name)}">
+          <span class="zoning-swatch" style="background:${sanitize(prop.zoning.color_hex)}"></span>
+          ${sanitize(prop.zoning.name)}
+        </div>
+        <div class="property-card__actions">
+          <button class="btn-view" onclick="renderPropertyDetail('${sanitize(prop.code)}')">ดูรายละเอียด</button>
+          <button class="btn-favorite" onclick="toggleFavorite('${sanitize(prop.code)}')" aria-pressed="${isFavorite}" aria-label="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+            ${isFavorite ? '★' : '☆'}
+          </button>
+        </div>
+      </div>
+    `;
+    
+    grid.appendChild(card);
+  });
+  
+  logActivity('view_list', { count: props.length });
+}
+
+// ========== PROPERTY DETAIL MODAL ==========
+let currentGalleryIndex = 0;
+let currentGalleryMedia = [];
+
+function renderPropertyDetail(code) {
+  const prop = properties.find(p => p.code === code);
+  if (!prop) return;
+  
+  const modal = document.getElementById('propertyDetailModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  
+  modalTitle.textContent = prop.title;
+  currentGalleryMedia = prop.media;
+  currentGalleryIndex = 0;
+  
+  const isSensitive = prop.is_sensitive || prop.media.some(m => m.is_sensitive);
+  
+  modalBody.innerHTML = `
+    <div class="gallery">
+      <div class="gallery-main" id="galleryMain">
+        ${renderGalleryItem(prop.media[0], isSensitive)}
+      </div>
+      ${prop.media.length > 1 ? `
+        <div class="gallery-nav">
+          <button onclick="prevGallery()" aria-label="Previous image">‹</button>
+          <button onclick="nextGallery()" aria-label="Next image">›</button>
+        </div>
+        <div class="gallery-index">${currentGalleryIndex + 1} / ${prop.media.length}</div>
+      ` : ''}
+    </div>
+    
+    <div class="property-meta">
+      <div class="meta-row">
+        <span class="meta-label">รหัสทรัพย์:</span>
+        <span class="meta-value">${sanitize(prop.code)}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">ราคา:</span>
+        <span class="meta-value">${formatCombined(prop.price)}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">พื้นที่:</span>
+        <span class="meta-value">${buildAreaDisplay(prop.area_rai)}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">ทำเล:</span>
+        <span class="meta-value">${sanitize(prop.location)}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">Zoning:</span>
+        <span class="meta-value">
+          <span class="zoning-swatch" style="background:${sanitize(prop.zoning.color_hex)};display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;"></span>
+          ${sanitize(prop.zoning.name)} - ${sanitize(prop.zoning.note)}
+        </span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">สถานะ:</span>
+        <span class="meta-value">${prop.status === 'available' ? 'ว่าง' : prop.status === 'reserved' ? 'จอง' : 'ขายแล้ว'}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">แท็ก:</span>
+        <span class="meta-value">
+          <div class="tags-list">
+            ${prop.tags.map(tag => `<span class="tag">${sanitize(tag)}</span>`).join('')}
+          </div>
+        </span>
+      </div>
+    </div>
+    
+    <h3>แชร์ทรัพย์สินนี้</h3>
+    <div class="share-buttons">
+      <button onclick="shareProperty('${sanitize(prop.code)}', 'line')">📱 Line</button>
+      <button onclick="shareProperty('${sanitize(prop.code)}', 'facebook')">📘 Facebook</button>
+      <button onclick="shareProperty('${sanitize(prop.code)}', 'email')">✉️ Email</button>
+      <button onclick="shareProperty('${sanitize(prop.code)}', 'wechat')">💬 WeChat</button>
+      <button onclick="shareProperty('${sanitize(prop.code)}', 'copy')">🔗 คัดลอกลิงก์</button>
+    </div>
+    
+    ${prop.geo ? `
+      <button onclick="openMap(${prop.geo.lat}, ${prop.geo.lng}, '${sanitize(prop.code)}')" class="outline" style="width:100%;">
+        🗺️ เปิดแผนที่ Google Maps
+      </button>
+    ` : ''}
+    
+    ${isSensitive ? `
+      <div style="background:var(--surface-hover);padding:16px;border-radius:var(--radius);margin-top:16px;text-align:center;">
+        <p style="color:var(--warning);margin-bottom:12px;">⚠️ เอกสารสำคัญของทรัพย์สินนี้ถูกจำกัดการเข้าถึง</p>
+        <button onclick="requestDocument('${sanitize(prop.code)}')">ขอเอกสาร</button>
+      </div>
+    ` : ''}
+    
+    <div class="lead-form">
+      <h3>สนใจทรัพย์สินนี้?</h3>
+      <form id="leadForm" onsubmit="submitLead(event, '${sanitize(prop.code)}')">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ชื่อ-นามสกุล *</label>
+            <input type="text" name="name" required>
+            <div class="form-error" id="errorName"></div>
+          </div>
+          <div class="form-group">
+            <label>เบอร์โทรศัพท์ *</label>
+            <input type="tel" name="phone" required pattern="[0-9]{9,10}">
+            <div class="form-error" id="errorPhone"></div>
+          </div>
+          <div class="form-group">
+            <label>อีเมล</label>
+            <input type="email" name="email">
+          </div>
+          <div class="form-group">
+            <label>ช่องทางติดต่อที่สะดวก</label>
+            <select name="channel">
+              <option value="line">Line</option>
+              <option value="facebook">Facebook</option>
+              <option value="wechat">WeChat</option>
+              <option value="phone">โทรศัพท์</option>
+              <option value="other">อื่นๆ</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label>ข้อความ</label>
+            <textarea name="message" rows="3"></textarea>
+          </div>
+          <div class="checkbox-wrapper" style="grid-column:1/-1;">
+            <input type="checkbox" name="pdpa_consent" required id="pdpaConsent">
+            <label for="pdpaConsent" style="text-transform:none;">
+              ฉันยินยอมให้เก็บรวบรวมและใช้ข้อมูลส่วนบุคคลตาม PDPA *
+            </label>
+          </div>
+          <input type="hidden" name="website" class="honeypot">
+        </div>
+        <button type="submit" style="width:100%;margin-top:16px;">ส่งข้อความ</button>
+        <div class="form-success" id="formSuccess" style="display:none;"></div>
+      </form>
+    </div>
+  `;
+  
+  modal.classList.add('active');
+  logActivity('view_detail', { code });
+  
+  // Add keyboard navigation
+  document.addEventListener('keydown', galleryKeyHandler);
+}
+
+function renderGalleryItem(media, isSensitive) {
+  if (!media) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);">ไม่มีรูปภาพ</div>';
+  
+  const showSensitive = isSensitive || media.is_sensitive;
+  const blurClass = showSensitive ? 'sensitive-blur' : '';
+  
+  let content = '';
+  if (media.type === 'image') {
+    content = `<img src="${sanitize(media.url)}" alt="Property media" class="${blurClass}" loading="lazy">`;
+  } else if (media.type === 'video') {
+    content = `<video src="${sanitize(media.url)}" controls class="${blurClass}"></video>`;
+  }
+  
+  return `
+    ${content}
+    ${showSensitive ? `
+      <div class="sensitive-overlay" title="เนื้อหานี้จำกัดการเข้าถึง">
+        <div class="sensitive-message">
+          <p style="margin-bottom:12px;font-weight:600;">🔒 เนื้อหาจำกัดการเข้าถึง</p>
+          <p style="font-size:.875rem;color:var(--text-secondary);">กรุณาขอสิทธิ์เพื่อดูเอกสารฉบับเต็ม</p>
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+function prevGallery() {
+  if (currentGalleryIndex > 0) {
+    currentGalleryIndex--;
+    updateGallery();
+  }
+}
+
+function nextGallery() {
+  if (currentGalleryIndex < currentGalleryMedia.length - 1) {
+    currentGalleryIndex++;
+    updateGallery();
+  }
+}
+
+function updateGallery() {
+  const main = document.getElementById('galleryMain');
+  if (!main) return;
+  
+  const media = currentGalleryMedia[currentGalleryIndex];
+  const isSensitive = media.is_sensitive;
+  main.innerHTML = renderGalleryItem(media, isSensitive);
+  
+  const indexEl = document.querySelector('.gallery-index');
+  if (indexEl) {
+    indexEl.textContent = `${currentGalleryIndex + 1} / ${currentGalleryMedia.length}`;
+  }
+}
+
+function galleryKeyHandler(e) {
+  if (!document.getElementById('propertyDetailModal').classList.contains('active')) return;
+  
+  if (e.key === 'ArrowLeft') {
+    prevGallery();
+  } else if (e.key === 'ArrowRight') {
+    nextGallery();
+  } else if (e.key === 'Escape') {
+    closeModal();
+  }
+}
+
+function closeModal() {
+  document.getElementById('propertyDetailModal').classList.remove('active');
+  document.removeEventListener('keydown', galleryKeyHandler);
+}
+
+// ========== SHARE ==========
+function shareProperty(code, channel) {
+  const prop = properties.find(p => p.code === code);
+  if (!prop) return;
+  
+  const baseUrl = 'https://nextplot.example.com/?code=' + code;
+  const shareUrl = buildShareUrl(baseUrl, channel);
+  const text = `${prop.title} - ${formatCombined(prop.price)}`;
+  
+  if (channel === 'line') {
+    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text + ' ' + shareUrl)}`;
+    window.open(lineUrl, '_blank', 'noopener');
+  } else if (channel === 'facebook') {
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    window.open(fbUrl, '_blank', 'noopener');
+  } else if (channel === 'email') {
+    const subject = encodeURIComponent('แชร์ทรัพย์สิน: ' + prop.title);
+    const body = encodeURIComponent(text + '\n\n' + shareUrl);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  } else if (channel === 'wechat') {
+    showWeChatQR(shareUrl);
+  } else if (channel === 'copy') {
+    copyToClipboard(shareUrl);
+  }
+  
+  share_events.push({ code, channel, timestamp: new Date().toISOString() });
+  logActivity('share_click', { code, channel });
+}
+
+function showWeChatQR(url) {
+  const modal = document.getElementById('propertyDetailModal');
+  const body = modal.querySelector('.modal-body');
+  
+  const qrContainer = document.createElement('div');
+  qrContainer.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);padding:24px;border-radius:var(--radius);border:1px solid var(--border);z-index:2000;text-align:center;';
+  qrContainer.innerHTML = `
+    <h3 style="margin-bottom:16px;">แชร์ผ่าน WeChat</h3>
+    <canvas id="qrCanvas" class="qr-canvas" width="200" height="200"></canvas>
+    <p style="margin-top:16px;font-size:.875rem;color:var(--text-secondary);">
+      คัดลอกลิงก์และแชร์ใน WeChat
+    </p>
+    <button onclick="copyToClipboard('${url}');this.parentElement.remove();" style="margin-top:12px;width:100%;">
+      คัดลอกลิงก์
+    </button>
+    <button onclick="this.parentElement.remove();" class="outline" style="margin-top:8px;width:100%;">
+      ปิด
+    </button>
+  `;
+  
+  document.body.appendChild(qrContainer);
+  
+  // Generate placeholder QR (canvas placeholder)
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'var(--surface)';
+  ctx.fillRect(0, 0, 200, 200);
+  ctx.fillStyle = 'var(--text)';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('QR Code', 100, 90);
+  ctx.fillText('Placeholder', 100, 110);
+  ctx.strokeStyle = 'var(--border)';
+  ctx.strokeRect(0, 0, 200, 200);
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('คัดลอกลิงก์แล้ว');
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    showToast('คัดลอกลิงก์แล้ว');
+  } catch (err) {
+    showToast('ไม่สามารถคัดลอกได้');
+  }
+  document.body.removeChild(textarea);
+}
+
+function openMap(lat, lng, code) {
+  const url = `https://www.google.com/maps?q=${lat},${lng}`;
+  window.open(url, '_blank', 'noopener');
+  logActivity('map_open', { code, lat, lng });
+}
+
+function requestDocument(code) {
+  document_requests.push({ code, timestamp: new Date().toISOString(), user: 'anonymous' });
+  logActivity('request_sensitive_doc', { code });
+  showToast('คำขอของคุณถูกส่งแล้ว ทีมงานจะติดต่อกลับภายใน 24 ชั่วโมง');
+  // TODO: POST /edge/handle_document_request
+}
+
+// ========== LEAD FORM ==========
+function submitLead(event, propertyCode) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  // Honeypot check
+  if (formData.get('website')) {
+    console.log('[SECURITY] Honeypot triggered');
+    return;
+  }
+  
+  // Clear errors
+  document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+  
+  // Validate
+  const name = formData.get('name').trim();
+  const phone = formData.get('phone').trim();
+  const email = formData.get('email').trim();
+  const pdpaConsent = formData.get('pdpa_consent');
+  
+  let hasError = false;
+  
+  if (!name || name.length < 2) {
+    document.getElementById('errorName').textContent = 'กรุณากรอกชื่อ-นามสกุล';
+    hasError = true;
+  }
+  
+  if (!phone || !/^[0-9]{9,10}$/.test(phone)) {
+    document.getElementById('errorPhone').textContent = 'กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง';
+    hasError = true;
+  }
+  
+  if (!pdpaConsent) {
+    showToast('กรุณายินยอมเงื่อนไข PDPA');
+    hasError = true;
+  }
+  
+  if (hasError) return;
+  
+  // Sanitize and save
+  const lead = {
+    property_code: propertyCode,
+    name: sanitize(name),
+    phone: sanitize(phone),
+    email: sanitize(email),
+    channel: formData.get('channel'),
+    message: sanitize(formData.get('message')),
+    timestamp: new Date().toISOString()
+  };
+  
+  leads.push(lead);
+  logActivity('lead_submit', { code: propertyCode });
+  
+  // Show success
+  document.getElementById('formSuccess').textContent = 'ส่งข้อความเรียบร้อย! ทีมงานจะติดต่อกลับโดยเร็ว';
+  document.getElementById('formSuccess').style.display = 'block';
+  form.reset();
+  
+  setTimeout(() => {
+    document.getElementById('formSuccess').style.display = 'none';
+  }, 5000);
+  
+  // TODO: POST /edge/leads
+}
+
+// ========== INITIALIZATION ==========
+function init() {
+  // Detect theme
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+  applyTheme(theme);
+  
+  // Detect language
+  const savedLang = localStorage.getItem('lang');
+  const browserLang = navigator.language.split('-')[0];
+  const lang = savedLang || (['th', 'en', 'zh'].includes(browserLang) ? browserLang : 'th');
+  switchLanguage(lang);
+  
+  // Initial render
+  filteredProperties = properties;
+  renderProperties(filteredProperties);
+  renderFavorites();
+  document.getElementById('filterResults').textContent = `พบ ${filteredProperties.length} รายการ`;
+  
+  // Event listeners
+  document.querySelector('.theme-toggle').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme;
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+  
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchLanguage(btn.dataset.lang);
+    });
+  });
+  
+  // Filter inputs
+  const filterInputs = [
+    'filterKeyword', 'filterLocation', 'filterPriceMin', 'filterPriceMax',
+    'filterAreaMin', 'filterAreaMax', 'filterStatus', 'filterSort'
+  ];
+  
+  filterInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', applyFilters);
+      el.addEventListener('change', applyFilters);
+    }
+  });
+  
+  // Modal close on overlay click
+  document.getElementById('propertyDetailModal').addEventListener('click', (e) => {
+    if (e.target.id === 'propertyDetailModal') {
+      closeModal();
+    }
+  });
+  
+  logActivity('page_load', { properties_count: properties.length });
+}
+
+// Start when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
